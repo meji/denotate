@@ -1,10 +1,11 @@
 import { Application, Router } from '../deps.ts'
-import { indexRouter } from './routes/index.ts'
-import { postRouter } from './routes/post/index.ts'
+import posts from './routes/posts.ts'
 
-const router = new Router()
 export const app = new Application()
-app.use(indexRouter.routes())
-app.use(postRouter.routes())
-app.use(router.routes())
+const router = new Router()
+
+router.get('/', ctx => {
+  ctx.response.body = 'Hola index'
+})
+app.use(router.routes()).use(posts.routes())
 app.use(router.allowedMethods())
