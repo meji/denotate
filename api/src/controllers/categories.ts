@@ -67,7 +67,8 @@ export const getAllPosts = async ({ request, response, params }: Context | any) 
       )
       response.status = 200
     } else {
-      response.body = 'No hay category'
+      console.log('No existe')
+      response.body = 'That category does not exists'
       response.status = 404
     }
   } catch (e) {
