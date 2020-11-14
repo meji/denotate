@@ -20,7 +20,7 @@ export class PostService {
     return await this.collection.findOne({ _id: { $oid: id } })
   }
 
-  async findPostByQuery(query: string): Promise<PostDoc> {
+  async findPostByTitle(query: string): Promise<PostDoc> {
     return await this.collection.findOne({ query })
   }
 
@@ -41,5 +41,12 @@ export class PostService {
 
   async deletePostById(id: string): Promise<number> {
     return await this.collection.deleteOne({ _id: { $oid: id } })
+  }
+
+  async findAllPostsByQuery(user?: string, cat?: string, tag?: string): Promise<PostDoc[]> {
+    const posts = await this.collection.find({
+      $or: [{ cat: { $oid: cat } }, { user: { $oid: user } }, { tags: { $all: [{ $oid: tag }] } }]
+    })
+    return posts
   }
 }

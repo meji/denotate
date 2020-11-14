@@ -24,15 +24,32 @@ import { isId } from '../../utils/index.ts'
 export class PostController {
   constructor(private readonly service: PostService) {}
 
-  @Get()
-  async getAllPostsByUser(
+  // @Get()
+  // async getAllPostsByUser(
+  //   @QueryParam('user') user: string,
+  //   @Res() res: Response,
+  //   @Req() req: Request
+  // ) {
+  //   try {
+  //     if (user) {
+  //       return await this.service.findAllPostsByUser(user)
+  //     }
+  //   } catch (error) {
+  //     console.log(error)
+  //     throw new InternalServerError("Failure On 'findPostsByUser'!")
+  //   }
+  // }
+  @Get('/')
+  async getAllPostsByQuery(
     @QueryParam('user') user: string,
+    @QueryParam('cat') cat: string,
+    @QueryParam('tag') tag: string,
     @Res() res: Response,
     @Req() req: Request
   ) {
     try {
-      if (user) {
-        return await this.service.findAllPostsByUser(user)
+      if (isId(user) || isId(cat) || isId(tag)) {
+        return await this.service.findAllPostsByQuery(user, cat, tag)
       }
     } catch (error) {
       console.log(error)
@@ -60,24 +77,16 @@ export class PostController {
     }
   }
 
-  @Get('/byquery/')
-  async getPostByQuery(
+  @Get('/bytitle/')
+  async getPostByTitle(
     @QueryParam('title') title: string,
-    @QueryParam('id') id: string,
     @Res() response: Response,
     @Req() request: Request
   ) {
-    if (!isId(id)) {
-      return new NotFoundError('Post Not Found...')
-    }
     try {
-      const documentName: PostDoc = await this.service.findPostByQuery(title)
+      const documentName: PostDoc = await this.service.findPostByTitle(title)
       if (documentName) {
         return Content(documentName, 200)
-      }
-      const documentId: PostDoc = await this.service.findPostByQuery(id)
-      if (documentId) {
-        return Content(documentId, 200)
       }
 
       return new NotFoundError('Post Not Found...')

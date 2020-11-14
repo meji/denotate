@@ -116,5 +116,5 @@ export function paddingLeft({ text = '', maxLength = 10, char = ' ' }, prefix?: 
 }
 
 export function isId(id: string): boolean {
-  return !!id.match(/^[0-9a-fA-F]{24}$/)
+  return id ? !!id.match(/^[0-9a-fA-F]{24}$/) : false
 }
