@@ -1,6 +1,6 @@
 import { ObjectID } from './id.ts'
 
-interface Category {
+export interface Category {
   title: string
   brief: string
   description: string

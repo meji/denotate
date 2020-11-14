@@ -7,7 +7,7 @@ export interface Post {
   description: string
   img: string
   author: User
-  cats: ObjectID[]
+  cat: ObjectID
   tags: ObjectID[]
 }
 
