@@ -1,3 +1,7 @@
 # Created by .ignore support plugin (hsz.mobi)
 .idea/
 api/.env
+.env
+.prettierrc
+deno_mongo_*
+

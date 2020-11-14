@@ -1,7 +1,7 @@
 import { Post } from './post.ts'
 import { ObjectID } from './id.ts'
 
-interface Tag {
+export interface Tag {
   title: string
   brief: string
   description: string
