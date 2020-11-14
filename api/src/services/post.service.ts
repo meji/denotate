@@ -1,7 +1,6 @@
 import { Injectable } from '../../deps.ts'
 import { Post, PostDoc } from '../models/post.ts'
 import db from '../config/db.ts'
-import { ObjectID } from '../models/id.ts'
 
 @Injectable()
 export class PostService {
