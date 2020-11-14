@@ -46,6 +46,7 @@ export class UserController {
     }
 
     const [token, header, payload, signature] = convertBearerToToken(bearer)
+    console.log({ token, header, payload, signature })
 
     const allTokens = await this.tokenService.findAllTokens()
 
@@ -59,7 +60,7 @@ export class UserController {
 
     const jwt = await verify(token, env.secret, 'HS512')
 
-    if (!jwt || !jwt.payload || !jwt.iss || !jwt.exp) {
+    if (!jwt || !jwt.iss || !jwt.exp) {
       return null
     }
 
@@ -71,7 +72,6 @@ export class UserController {
         exp: jwt.exp
       })
     }
-
     return jwt.iss
   }
 
@@ -92,7 +92,7 @@ export class UserController {
         ...user
       })
 
-      const token = create(
+      const token = await create(
         { alg: 'HS256', typ: 'JWT' },
         {
           iss: id,
@@ -125,23 +125,14 @@ export class UserController {
 
       if (document && document.password) {
         const comparedPswd = await compare(password, document.password)
-
         if (comparedPswd) {
-          const token = create(
-            {
-              alg: 'HS256',
-              typ: 'JWT'
-            },
-            {
-              iss: id,
-              exp: new Date().getTime() + 60 * 60 * 6 * 1000 // NOTE: 6h
-            },
+          const token = await create(
+            { alg: 'HS512', typ: 'JWT' },
+            { iss: id, exp: new Date().getTime() + 60 * 60 * 6 * 1000 },
             env.secret
           )
-
           return { token }
         }
-
         return new UnauthorizedError('Nope...')
       }
 
