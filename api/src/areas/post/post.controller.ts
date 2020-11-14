@@ -94,9 +94,10 @@ export class PostController {
       if (Object.keys(body).length === 0) {
         return new BadRequestError('Body Is Empty...')
       }
+
       const id = await this.service.insertPost(body)
-      const post = await this.service.findPostByIdO(id)
-      return Content(post, 201)
+      const postF = await this.service.findPostById(id.$oid)
+      return Content(postF, 201)
     } catch (error) {
       console.log(error)
       throw new InternalServerError("Failure On 'insertPost' !")
@@ -105,6 +106,9 @@ export class PostController {
 
   @Put('/:id')
   async upPost(@Param('id') id: string, @Body() body: Partial<PostContent>) {
+    if (!isId(id)) {
+      return new NotFoundError('Post Not Found...')
+    }
     try {
       if (Object.keys(body).length === 0) {
         return new BadRequestError('Body Is Empty...')
