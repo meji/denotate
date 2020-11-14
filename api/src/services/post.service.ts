@@ -17,8 +17,10 @@ export class PostService {
   }
 
   async findPostById(id: string): Promise<PostDoc> {
-    console.log(id)
     return await this.collection.findOne({ _id: { $oid: id } })
+  }
+  async findPostByIdO(id: ObjectID): Promise<PostDoc> {
+    return await this.collection.findOne(id)
   }
 
   async findPostByQuery(query: string): Promise<PostDoc> {

@@ -6,6 +6,7 @@ export interface User {
   email: string
   firstName: string
   lastName: string
+  posts: ObjectID[]
 }
 
 export type UserDocument = ObjectID & User
