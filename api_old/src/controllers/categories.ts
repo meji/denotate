@@ -2,11 +2,10 @@ import { Context } from '../../deps.ts'
 import { Categories } from '../models/categories.ts'
 import { Posts } from '../models/posts.ts'
 
-export const getCategoryById = async ({ request, response, params }: Context | any) => {
+export const getCategoryById = async ({ response, params }: Context | any) => {
   try {
     const { id } = params
-    const category = await Categories.findOne({ _id: { $oid: id } })
-    response.body = category
+    response.body = await Categories.findOne({ _id: { $oid: id } })
     response.status = 200
   } catch (e) {
     response.body = null
@@ -55,7 +54,7 @@ export const addCategory = async ({ request, response }: Context) => {
   }
 }
 
-export const getAllPosts = async ({ request, response, params }: Context | any) => {
+export const getAllPosts = async ({ response, params }: Context | any) => {
   try {
     const { id } = params
     const category = await Categories.findOne({ _id: { $oid: id } })

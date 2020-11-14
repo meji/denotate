@@ -18,6 +18,7 @@ import {
 } from '../../../deps.ts'
 import { Post as PostContent, PostDoc } from '../../models/post.ts'
 import { PostService } from '../../services/post.service.ts'
+import { isId } from '../../utils/index.ts'
 
 @Controller()
 export class PostController {
@@ -41,6 +42,9 @@ export class PostController {
 
   @Get('/:id')
   async getPost(@Param('id') id: string, @Res() response: Response, @Req() request: Request) {
+    if (!isId(id)) {
+      return new NotFoundError('Post Not Found...')
+    }
     try {
       const document: PostDoc = await this.service.findPostById(id)
 
@@ -56,17 +60,24 @@ export class PostController {
     }
   }
 
-  @Get()
-  async getPostByTitle(
+  @Get('/byquery/')
+  async getPostByQuery(
     @QueryParam('title') title: string,
+    @QueryParam('id') id: string,
     @Res() response: Response,
     @Req() request: Request
   ) {
+    if (!isId(id)) {
+      return new NotFoundError('Post Not Found...')
+    }
     try {
-      const document: PostDoc = await this.service.findPostByTitle(title)
-
-      if (document) {
-        return Content(document, 200)
+      const documentName: PostDoc = await this.service.findPostByQuery(title)
+      if (documentName) {
+        return Content(documentName, 200)
+      }
+      const documentId: PostDoc = await this.service.findPostByQuery(id)
+      if (documentId) {
+        return Content(documentId, 200)
       }
 
       return new NotFoundError('Post Not Found...')

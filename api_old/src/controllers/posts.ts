@@ -1,10 +1,10 @@
 import { Context } from '../../deps.ts'
 import { Posts } from '../models/posts.ts'
-export const getPostById = async ({ request, response, params }: Context | any) => {
+
+export const getPostById = async ({ response, params }: Context | any) => {
   try {
     const { id } = params
-    const post = await Posts.findOne({ _id: { $oid: id } })
-    response.body = post
+    response.body = await Posts.findOne({ _id: { $oid: id } })
     response.status = 200
   } catch (e) {
     response.body = null
