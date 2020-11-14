@@ -12,13 +12,14 @@ export class TokenController {
    */
   private async resetTokens() {
     const allTokens = await this.service.findAllTokens()
-
-    allTokens.forEach(async ({ _id: { $oid: id }, exp }) => {
+    for (const {
+      _id: { $oid: id },
+      exp
+    } of allTokens) {
       const now = new Date()
-
       if (exp < now.getTime()) {
         await this.service.deleteTokenById(id)
       }
-    })
+    }
   }
 }

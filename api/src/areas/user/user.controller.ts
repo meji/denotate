@@ -1,5 +1,4 @@
 import {
-  readJsonSync,
   Controller,
   Get,
   Post,
@@ -17,48 +16,20 @@ import {
   genSalt,
   hash,
   compare,
-  makeJwt,
-  setExpiration,
-  validateJwt
+  create,
+  verify
 } from '../../../deps.ts'
 import { User, UserDocument } from '../../models/user.ts'
 import { UserService } from '../../services/user.service.ts'
 import { TokenService } from '../../services/token.service.ts'
 import env from '../../config/env.ts'
-import { isEmpty, convertBearerToToken } from '../../utils'
+import { isEmpty, convertBearerToToken } from '../../utils/index.ts'
 
 type StringOrNull = string | null
 
 @Controller()
 export class UserController {
-  constructor(private userService: UserService, private tokenService: TokenService) {
-    this.initUser('users.json')
-  }
-
-  /**
-   * Initialize Users DataSet
-   *
-   * @param {String} fileName JSON FileName
-   */
-  private async initUser(fileName: string) {
-    const users = await readJsonSync(`${env.currentWorkingDir}/datasets/${fileName}`)
-    ;(users as User[]).forEach(async ({ login, password, ...user }) => {
-      const document: UserDocument = await this.userService.findUserByLogin(login)
-
-      if (document) {
-        return await this.userService.updateUserByLogin(login, user)
-      }
-
-      const newSalt = await genSalt(10)
-      const hashedPswd = await hash(password, newSalt)
-
-      return await this.userService.insertUser({
-        login,
-        password: hashedPswd,
-        ...user
-      })
-    })
-  }
+  constructor(private userService: UserService, private tokenService: TokenService) {}
 
   /**
    * Verify Authorization
@@ -86,9 +57,9 @@ export class UserController {
       return null
     }
 
-    const jwt = await validateJwt(token, env.secret, { isThrowing: false })
+    const jwt = await verify(token, env.secret, 'HS512')
 
-    if (!jwt || !jwt.payload || !jwt.payload.iss || !jwt.payload.exp) {
+    if (!jwt || !jwt.payload || !jwt.iss || !jwt.exp) {
       return null
     }
 
@@ -97,11 +68,11 @@ export class UserController {
         header,
         payload,
         signature,
-        exp: jwt.payload.exp
+        exp: jwt.exp
       })
     }
 
-    return jwt.payload.iss
+    return jwt.iss
   }
 
   @Post('/user/register')
@@ -121,17 +92,14 @@ export class UserController {
         ...user
       })
 
-      const token = makeJwt({
-        header: {
-          alg: 'HS256',
-          typ: 'JWT'
-        },
-        payload: {
+      const token = create(
+        { alg: 'HS256', typ: 'JWT' },
+        {
           iss: id,
-          exp: setExpiration(new Date().getTime() + 60 * 60 * 6 * 1000) // NOTE: 6h
+          exp: new Date().getTime() + 60 * 60 * 6 * 1000 // NOTE: 6h
         },
-        key: env.secret
-      })
+        env.secret
+      )
 
       return Content({ token }, 201)
     } catch (error) {
@@ -159,17 +127,17 @@ export class UserController {
         const comparedPswd = await compare(password, document.password)
 
         if (comparedPswd) {
-          const token = makeJwt({
-            header: {
+          const token = create(
+            {
               alg: 'HS256',
               typ: 'JWT'
             },
-            payload: {
+            {
               iss: id,
-              exp: setExpiration(new Date().getTime() + 60 * 60 * 6 * 1000) // NOTE: 6h
+              exp: new Date().getTime() + 60 * 60 * 6 * 1000 // NOTE: 6h
             },
-            key: env.secret
-          })
+            env.secret
+          )
 
           return { token }
         }
