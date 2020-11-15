@@ -1,31 +1,11 @@
-const PROD = `
- __
-(_ \\
-  \\ \\_.----._
-   \\         \\
-    |  ) |  ) \\__
-    |_|--|_|'-.__\\
-
-`
-
-const DEV = `
- __
-(_ \\
-  \\ \\_/\\/\\/\\_
-   \\         |_
-    |  ) |  )  |_
-    |_|--|_|'-.__\\
-
-`
-
 /**
- * Util: Check Is Object Is Empty
+ * Util: Is Empty Object
  *
  * @param {Object} obj Object
  * @returns {Boolean} Is Empty (Or Not)
  */
 export function isEmpty(obj: any): boolean {
-  return Object.keys(obj).length === 0
+  return Object.keys(obj).length === 0;
 }
 
 /**
@@ -35,9 +15,9 @@ export function isEmpty(obj: any): boolean {
  * @returns {Array<String>} [Token, Header, Payload, Signature]
  */
 export function convertBearerToToken(bearer: string): string[] {
-  const token = bearer.replace(/Bearer\s/g, '')
+  const token = bearer.replace(/Bearer\s/g, "");
 
-  return [token, ...token.split('.')]
+  return [token, ...token.split(".")];
 }
 
 /**
@@ -46,12 +26,32 @@ export function convertBearerToToken(bearer: string): string[] {
  * @param {Boolean} isProdEnv Is Prod Environment (Or Not)
  * @returns {String} ASCII Dinosaur
  */
+
+const PROD = `
+ __
+(_ \\
+  \\ \\_.----._
+   \\         \\
+    |  ) |  ) \\__
+    |_|--|_|'-.__\\
+
+`;
+
+const DEV = `
+ __
+(_ \\
+  \\ \\_/\\/\\/\\_
+   \\         |_
+    |  ) |  )  |_
+    |_|--|_|'-.__\\
+
+`;
 export function displayDinosaur(isProdEnv = false): string {
   if (isProdEnv) {
-    return PROD
+    return PROD;
   }
 
-  return DEV
+  return DEV;
 }
 
 /**
@@ -61,39 +61,39 @@ export function displayDinosaur(isProdEnv = false): string {
  * @returns {String} Formated Date (DD/MM/YYYY)
  */
 export function formatDate(date: Date): string {
-  const dayOfTheMonth = date.getDate()
-  const month = date.getMonth() + 1
-  const fullYear = date.getFullYear()
+  const dayOfTheMonth = date.getDate();
+  const month = date.getMonth() + 1;
+  const fullYear = date.getFullYear();
 
-  return `${dayOfTheMonth}/${month}/${fullYear}`
+  return `${dayOfTheMonth}/${month}/${fullYear}`;
 }
 
 /**
- * Util: Format Clock
+ * Util: Format time
  *
  * @param date Date
  * @returns {String} Formated Clock (HH:mm:ss)
  */
 export function formatClock(date: Date): string {
-  const hours = date.getHours()
-  const minutes = date.getMinutes()
-  const seconds = date.getSeconds()
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const seconds = date.getSeconds();
 
-  return `${hours}:${minutes}:${seconds}`
+  return `${hours}:${minutes}:${seconds}`;
 }
 
 /**
- * Util: Convert Timestamp To Millis
+ * Util: Turn timestmp to mills
  *
  * @param {Number} timestamp Timestamp
  * @returns {Number} Millis
  */
 export function timestampToMillis(timestamp: number): number {
-  return timestamp * 1000
+  return timestamp * 1000;
 }
 
 /**
- * Util: Convert Millis To Minutes
+ * Util: Convert Milisec to Minutes
  *
  * @param {Number} millis Millis
  * @param {Boolean} rounded Rounded (Default: 'true')
@@ -101,20 +101,39 @@ export function timestampToMillis(timestamp: number): number {
  */
 export function millisToMinutes(millis: number, rounded = true): number {
   if (rounded) {
-    return Math.round(millis / (60 * 1000))
+    return Math.round(millis / (60 * 1000));
   }
 
-  return millis / (60 * 1000)
+  return millis / (60 * 1000);
 }
 
-export function paddingLeft({ text = '', maxLength = 10, char = ' ' }, prefix?: string): string {
+/**
+ * Util: Paint sgtring with padding
+ *
+ * @param {text} string
+ * @param {maxLength} number
+ * @param {char} string
+ * @param {prefix} string
+ * @returns string con padding
+ */
+export function paddingLeft(
+  { text = "", maxLength = 10, char = " " },
+  prefix?: string
+): string {
   if (prefix) {
-    return prefix + text.padStart(maxLength - prefix.length, char)
+    return prefix + text.padStart(maxLength - prefix.length, char);
   }
 
-  return text.padStart(maxLength, char)
+  return text.padStart(maxLength, char);
 }
+
+/**
+ * Util: Saber si un ID es Hexadecimal y de 24 digitos
+ *
+ * @param {String} id
+ * @returns {boolean}
+ */
 
 export function isId(id: string): boolean {
-  return id ? !!id.match(/^[0-9a-fA-F]{24}$/) : false
+  return id ? !!id.match(/^[0-9a-fA-F]{24}$/) : false;
 }
