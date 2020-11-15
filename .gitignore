@@ -4,4 +4,7 @@ api/.env
 .env
 .prettierrc
 deno_mongo_*
+scripts.config.ts
+tsconfig.app.json
 
+api/public/
