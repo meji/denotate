@@ -1,3 +1,6 @@
+import { colors } from "../../deps.ts";
+import env from "../config/env.ts";
+
 /**
  * Util: Is Empty Object
  *
@@ -69,12 +72,11 @@ __________                                     | : '. |
                       'c=,
 
 `;
-export function displayDinosaur(isProdEnv = false): string {
+export function displayDinosaur(isProdEnv = false): void {
   if (isProdEnv) {
-    return PROD;
+    return console.log(colors.green(PROD));
   }
-
-  return DEV;
+  return console.log(colors.brightMagenta(DEV));
 }
 
 /**
