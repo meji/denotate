@@ -132,7 +132,7 @@ export function millisToMinutes(millis: number, rounded = true): number {
 }
 
 /**
- * Util: Paint sgtring with padding
+ * Util: Paint string with padding
  *
  * @param {text} string
  * @param {maxLength} number

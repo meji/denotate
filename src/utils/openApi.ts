@@ -1,12 +1,12 @@
-import { AlosaurOpenApiBuilder } from '../../deps.ts'
-import { appSettings } from '../settings.ts'
+import { AlosaurOpenApiBuilder } from "../../deps.ts";
+import { appSettings } from "../settings.ts";
 
 AlosaurOpenApiBuilder.create(appSettings)
-  .addTitle('Basic Application')
-  .addVersion('1.0.0')
-  .addDescription('Example Alosaur OpenApi generate')
+  .addTitle("Denotate")
+  .addVersion("1.0.0")
+  .addDescription("Denotate OpenApi")
   .addServer({
-    url: 'http://localhost:8000',
-    description: 'Local server'
+    url: "https://denotate-back.herokuapp.com/",
+    description: "Backup Denotare Server"
   })
-  .saveToFile('./api.json')
+  .saveToFile("./api.json");
