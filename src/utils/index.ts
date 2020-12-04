@@ -1,5 +1,4 @@
 import { colors } from "../../deps.ts";
-import env from "../config/env.ts";
 
 /**
  * Util: Is Empty Object
