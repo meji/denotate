@@ -1,27 +1,23 @@
-import { Middleware, ServerRequest, colors, Context } from '../../deps.ts'
-import { MiddlewareTarget } from '../models/middleware-target.ts'
-import env from '../config/env.ts'
-import { paddingLeft, formatClock } from '../utils/index.ts'
+import { Middleware, ServerRequest, colors, Context } from "../../deps.ts";
+import { MiddlewareTarget } from "../models/middleware-target.ts";
+import env from "../config/env.ts";
+import { paddingLeft, formatClock } from "../utils/index.ts";
 
-@Middleware(new RegExp('/api/'))
+@Middleware(new RegExp("/api/"))
 export class Log implements MiddlewareTarget {
-  date = new Date()
-
+  date = new Date();
   onPreRequest(context: Context<unknown>) {
     return new Promise(resolve => {
-      this.date = new Date()
-
-      if (env.denoEnv !== 'prod') {
-        console.log(paddingLeft({ maxLength: 50, char: '-' }))
+      this.date = new Date();
+      if (env.denoEnv !== "prod") {
+        console.log(paddingLeft({ maxLength: 50, char: "-" }));
       }
-
-      resolve()
-    })
+      resolve();
+    });
   }
-
   onPostRequest({ url, method }: ServerRequest): Promise<void> {
     return new Promise(resolve => {
-      if (env.denoEnv !== 'prod') {
+      if (env.denoEnv !== "prod") {
         console.log(
           colors.gray(
             paddingLeft(
@@ -29,11 +25,10 @@ export class Log implements MiddlewareTarget {
                 text: formatClock(this.date),
                 maxLength: 50
               },
-              '[TIME]'
+              "[TIME]"
             )
           )
-        )
-
+        );
         console.log(
           colors.yellow(
             paddingLeft(
@@ -41,10 +36,10 @@ export class Log implements MiddlewareTarget {
                 text: url,
                 maxLength: 50
               },
-              '[ENDPOINT]'
+              "[ENDPOINT]"
             )
           )
-        )
+        );
 
         console.log(
           colors.magenta(
@@ -53,12 +48,12 @@ export class Log implements MiddlewareTarget {
                 text: method,
                 maxLength: 50
               },
-              '[VERB]'
+              "[VERB]"
             )
           )
-        )
+        );
 
-        const diff = new Date().getTime() - this.date.getTime()
+        const diff = new Date().getTime() - this.date.getTime();
 
         console.log(
           colors.cyan(
@@ -67,13 +62,13 @@ export class Log implements MiddlewareTarget {
                 text: `${diff}ms`,
                 maxLength: 50
               },
-              '[LATENCY]'
+              "[LATENCY]"
             )
           )
-        )
+        );
       }
 
-      resolve()
-    })
+      resolve();
+    });
   }
 }
