@@ -23,7 +23,7 @@ import {
   Category as CategoryContent
 } from "../../models/category.ts";
 import { CategoryService } from "../../services/category.service.ts";
-import { verifyAuth } from "../../utils/verifyToken.ts";
+import { getUserFromToken } from "../../utils/verifyToken.ts";
 import { isId } from "../../utils/index.ts";
 
 @Controller()
@@ -31,15 +31,9 @@ export class CategoryController {
   constructor(private readonly service: CategoryService) {}
   @Get()
   async getAllCategories(@Res() res: Response, @Req() req: Request) {
-    try {
-      const iss = await verifyAuth(req.headers);
-      if (!iss) {
-        return Content(new ForbiddenError("Not allowed..."), 400);
-      }
-    } catch (error) {
-      return Content(new ForbiddenError("Not allowed..."), 400);
+    if ((await getUserFromToken(req.headers)) == false) {
+      return Content(new ForbiddenError("Not Authorized"), 403);
     }
-
     try {
       return await this.service.findAllCategories();
     } catch (error) {
