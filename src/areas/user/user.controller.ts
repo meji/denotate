@@ -193,7 +193,6 @@ export class UserController {
         return new ForbiddenError("Nope...");
       }
 
-      // CLEARFIX: Extract Pswd !
       const {
         password,
         _id: { $oid: id },
