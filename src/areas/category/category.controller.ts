@@ -4,6 +4,7 @@ import {
   Content,
   Controller,
   Delete,
+  ForbiddenError,
   Get,
   InternalServerError,
   NotFoundError,
@@ -14,33 +15,33 @@ import {
   Req,
   Request,
   Res,
-  Response
+  Response,
+  verify
 } from "../../../deps.ts";
 import {
   CategoryDoc,
   Category as CategoryContent
 } from "../../models/category.ts";
 import { CategoryService } from "../../services/category.service.ts";
+import { verifyAuth } from "../../utils/verifyToken.ts";
 import { isId } from "../../utils/index.ts";
-import { Authorize } from "../../decorators/isLogged.ts";
-import { User } from "../../models/user.ts";
 
 @Controller()
 export class CategoryController {
   constructor(private readonly service: CategoryService) {}
-
   @Get()
-  async getAllCategories(
-    @Res() res: Response,
-    @Req() req: Request,
-    @Authorize() user: any
-  ) {
+  async getAllCategories(@Res() res: Response, @Req() req: Request) {
     try {
-      console.log("user" + res.result.user);
-      if (res.result.user) {
-        console.log("dentro_user");
-        return await this.service.findAllCategories();
+      const iss = await verifyAuth(req.headers);
+      if (!iss) {
+        return Content(new ForbiddenError("Not allowed..."), 400);
       }
+    } catch (error) {
+      return Content(new ForbiddenError("Not allowed..."), 400);
+    }
+
+    try {
+      return await this.service.findAllCategories();
     } catch (error) {
       console.log(error);
       throw new InternalServerError("Failure On 'findCategoriesByUser'!");
@@ -53,9 +54,6 @@ export class CategoryController {
     @Res() response: Response,
     @Req() request: Request
   ) {
-    if (!isId(id)) {
-      return new NotFoundError("Category Not Found...");
-    }
     try {
       const document: CategoryDoc = await this.service.findCategoryById(id);
 

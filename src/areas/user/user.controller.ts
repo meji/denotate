@@ -41,7 +41,7 @@ export class UserController {
    * @param {Boolean} isLogout Is Logout (Default: 'false')
    * @returns {StringOrNull} Issuer
    */
-  public async verifyAuth(
+  private async verifyAuth(
     headers: Headers,
     isLogout = false
   ): Promise<StringOrNull> {
