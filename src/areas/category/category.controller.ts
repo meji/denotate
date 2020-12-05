@@ -31,7 +31,7 @@ export class CategoryController {
   constructor(private readonly service: CategoryService) {}
   @Get()
   async getAllCategories(@Res() res: Response, @Req() req: Request) {
-    if ((await getUserFromToken(req.headers)) == false) {
+    if ((await getUserFromToken(req.headers, true)) == false) {
       return Content(new ForbiddenError("Not Authorized"), 403);
     }
     try {

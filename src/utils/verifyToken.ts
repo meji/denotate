@@ -29,7 +29,7 @@ export async function getUserFromToken(
       return false;
     }
     const { password, ...document } = await userService.findUserById(jwt.iss);
-    if (admin && document.admin == null) {
+    if (admin && !document.admin) {
       return false;
     }
     if (document) {
