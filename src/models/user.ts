@@ -1,12 +1,13 @@
-import { ObjectID } from './id.ts'
+import { ObjectID } from "./id.ts";
 
 export interface User {
-  login: string
-  password: string
-  email: string
-  firstName: string
-  lastName: string
-  posts: ObjectID[]
+  login: string;
+  password: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  admin: boolean;
+  posts: ObjectID[];
 }
 
-export type UserDocument = ObjectID & User
+export type UserDocument = ObjectID & User;

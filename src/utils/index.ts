@@ -152,7 +152,7 @@ export function paddingLeft(
 }
 
 /**
- * Util: Saber si un ID es Hexadecimal y de 24 digitos
+ * Util: check if ID is Hexadecimal and 24 digits
  *
  * @param {String} id
  * @returns {boolean}
@@ -160,4 +160,17 @@ export function paddingLeft(
 
 export function isId(id: string): boolean {
   return id ? !!id.match(/^[0-9a-fA-F]{24}$/) : false;
+}
+
+/**
+ * Util: get Params from url without ?
+ *
+ * @param {String} url
+ * @returns {boolean}
+ */
+
+export function getQueryParams(url: string): URLSearchParams | undefined {
+  const params = url.split("?")[1];
+  if (!params) return undefined;
+  return new URLSearchParams(params);
 }
