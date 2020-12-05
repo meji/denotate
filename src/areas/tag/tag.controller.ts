@@ -4,6 +4,7 @@ import {
   Content,
   Controller,
   Delete,
+  ForbiddenError,
   Get,
   InternalServerError,
   NotFoundError,
@@ -19,6 +20,7 @@ import {
 import { TagDoc, Tag as TagContent } from "../../models/tag.ts";
 import { TagService } from "../../services/tag.service.ts";
 import { isId } from "../../utils/index.ts";
+import { getUserFromToken } from "../../utils/verifyToken.ts";
 
 @Controller()
 export class TagController {
@@ -93,7 +95,10 @@ export class TagController {
   }
 
   @Post("/")
-  async addTag(@Body() body: TagContent) {
+  async addTag(@Body() body: TagContent, @Req() req: Request) {
+    if ((await getUserFromToken(req.headers, false)) == false) {
+      return Content(new ForbiddenError("Not Authorized"), 403);
+    }
     try {
       if (Object.keys(body).length === 0) {
         return new BadRequestError("Body Is Empty...");
@@ -109,7 +114,14 @@ export class TagController {
   }
 
   @Put("/:id")
-  async upTag(@Param("id") id: string, @Body() body: Partial<TagContent>) {
+  async upTag(
+    @Param("id") id: string,
+    @Body() body: Partial<TagContent>,
+    @Req() req: Request
+  ) {
+    if ((await getUserFromToken(req.headers, false)) == false) {
+      return Content(new ForbiddenError("Not Authorized"), 403);
+    }
     if (!isId(id)) {
       return new NotFoundError("Tag Not Found...");
     }
@@ -142,7 +154,10 @@ export class TagController {
   }
 
   @Delete("/:id")
-  async delTag(@Param("id") id: string) {
+  async delTag(@Param("id") id: string, @Req() req: Request) {
+    if ((await getUserFromToken(req.headers, false)) == false) {
+      return Content(new ForbiddenError("Not Authorized"), 403);
+    }
     try {
       const document: TagDoc = await this.service.findTagById(id);
 

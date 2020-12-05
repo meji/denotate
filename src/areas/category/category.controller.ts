@@ -31,9 +31,6 @@ export class CategoryController {
   constructor(private readonly service: CategoryService) {}
   @Get()
   async getAllCategories(@Res() res: Response, @Req() req: Request) {
-    if ((await getUserFromToken(req.headers, true)) == false) {
-      return Content(new ForbiddenError("Not Authorized"), 403);
-    }
     try {
       return await this.service.findAllCategories();
     } catch (error) {
@@ -99,7 +96,10 @@ export class CategoryController {
   }
 
   @Post("/")
-  async addCategory(@Body() body: CategoryContent) {
+  async addCategory(@Body() body: CategoryContent, @Req() req: Request) {
+    if ((await getUserFromToken(req.headers, true)) == false) {
+      return Content(new ForbiddenError("Not Authorized"), 403);
+    }
     try {
       if (Object.keys(body).length === 0) {
         return new BadRequestError("Body Is Empty...");
@@ -117,8 +117,12 @@ export class CategoryController {
   @Put("/:id")
   async upCategory(
     @Param("id") id: string,
-    @Body() body: Partial<CategoryContent>
+    @Body() body: Partial<CategoryContent>,
+    @Req() req: Request
   ) {
+    if ((await getUserFromToken(req.headers, true)) == false) {
+      return Content(new ForbiddenError("Not Authorized"), 403);
+    }
     if (!isId(id)) {
       return Content(
         "Not found",
@@ -157,7 +161,10 @@ export class CategoryController {
   }
 
   @Delete("/:id")
-  async delCategory(@Param("id") id: string) {
+  async delCategory(@Param("id") id: string, @Req() req: Request) {
+    if ((await getUserFromToken(req.headers, true)) == false) {
+      return Content(new ForbiddenError("Not Authorized"), 403);
+    }
     try {
       const document: CategoryDoc = await this.service.findCategoryById(id);
 

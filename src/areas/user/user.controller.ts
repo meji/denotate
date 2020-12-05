@@ -17,13 +17,15 @@ import {
   hash,
   compare,
   create,
-  verify
+  verify,
+  Request
 } from "../../../deps.ts";
 import { User, UserDocument } from "../../models/user.ts";
 import { UserService } from "../../services/user.service.ts";
 import { TokenService } from "../../services/token.service.ts";
 import env from "../../config/env.ts";
 import { isEmpty, convertBearerToToken } from "../../utils/index.ts";
+import { getUserFromToken } from "../../utils/verifyToken.ts";
 
 type StringOrNull = string | null;
 
@@ -81,7 +83,10 @@ export class UserController {
   }
 
   @Post("/user/register")
-  async registerUser(@Body() body: User) {
+  async registerUser(@Body() body: User, @Req() req: Request) {
+    if ((await getUserFromToken(req.headers, true)) == false) {
+      return Content(new ForbiddenError("Not Authorized"), 403);
+    }
     try {
       if (isEmpty(body)) {
         return new BadRequestError("Body Is Empty...");
@@ -173,7 +178,10 @@ export class UserController {
   }
 
   @Get("/users")
-  async getAllUsers() {
+  async getAllUsers(@Req() req: Request) {
+    if ((await getUserFromToken(req.headers, true)) == false) {
+      return Content(new ForbiddenError("Not Authorized"), 403);
+    }
     try {
       const documents: UserDocument[] = await this.userService.findAllUsers();
 
@@ -187,6 +195,9 @@ export class UserController {
 
   @Get("/user")
   async getUser(@Req() req: ServerRequest) {
+    if ((await getUserFromToken(req.headers, false)) == false) {
+      return Content(new ForbiddenError("Not Authorized"), 403);
+    }
     try {
       const iss = await this.verifyAuth(req.headers);
       if (!iss) {
@@ -216,6 +227,9 @@ export class UserController {
     @Req() req: ServerRequest,
     @Body() body: { oldPswd: string; newPswd: string }
   ) {
+    if ((await getUserFromToken(req.headers, false)) == false) {
+      return Content(new ForbiddenError("Not Authorized"), 403);
+    }
     try {
       const iss = await this.verifyAuth(req.headers);
 
@@ -262,6 +276,9 @@ export class UserController {
 
   @Put("/user")
   async setUser(@Req() req: ServerRequest, @Body() body: Partial<User>) {
+    if ((await getUserFromToken(req.headers, true)) == false) {
+      return Content(new ForbiddenError("Not Authorized"), 403);
+    }
     try {
       const iss = await this.verifyAuth(req.headers);
 
@@ -298,6 +315,9 @@ export class UserController {
 
   @Delete("/user")
   async clearUser(@Req() req: ServerRequest) {
+    if ((await getUserFromToken(req.headers, true)) == false) {
+      return Content(new ForbiddenError("Not Authorized"), 403);
+    }
     try {
       const iss = await this.verifyAuth(req.headers);
 

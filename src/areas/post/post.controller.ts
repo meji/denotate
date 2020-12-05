@@ -4,6 +4,7 @@ import {
   Content,
   Controller,
   Delete,
+  ForbiddenError,
   Get,
   InternalServerError,
   NotFoundError,
@@ -19,6 +20,7 @@ import {
 import { Post as PostContent, PostDoc } from "../../models/post.ts";
 import { PostService } from "../../services/post.service.ts";
 import { isId } from "../../utils/index.ts";
+import { getUserFromToken } from "../../utils/verifyToken.ts";
 
 @Controller()
 export class PostController {
@@ -86,7 +88,10 @@ export class PostController {
   }
 
   @Post("/")
-  async addPost(@Body() body: PostContent) {
+  async addPost(@Body() body: PostContent, @Req() req: Request) {
+    if ((await getUserFromToken(req.headers, false)) == false) {
+      return Content(new ForbiddenError("Not Authorized"), 403);
+    }
     try {
       if (Object.keys(body).length === 0) {
         return new BadRequestError("Body Is Empty...");
@@ -102,7 +107,14 @@ export class PostController {
   }
 
   @Put("/:id")
-  async upPost(@Param("id") id: string, @Body() body: Partial<PostContent>) {
+  async upPost(
+    @Param("id") id: string,
+    @Body() body: Partial<PostContent>,
+    @Req() req: Request
+  ) {
+    if ((await getUserFromToken(req.headers, false)) == false) {
+      return Content(new ForbiddenError("Not Authorized"), 403);
+    }
     if (!isId(id)) {
       return new NotFoundError("Post Not Found...");
     }
@@ -135,7 +147,10 @@ export class PostController {
   }
 
   @Delete("/:id")
-  async delPost(@Param("id") id: string) {
+  async delPost(@Param("id") id: string, @Req() req: Request) {
+    if ((await getUserFromToken(req.headers, false)) == false) {
+      return Content(new ForbiddenError("Not Authorized"), 403);
+    }
     try {
       const document: PostDoc = await this.service.findPostById(id);
 
