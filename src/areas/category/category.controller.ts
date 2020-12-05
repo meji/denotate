@@ -22,20 +22,24 @@ import {
 } from "../../models/category.ts";
 import { CategoryService } from "../../services/category.service.ts";
 import { isId } from "../../utils/index.ts";
+import { Authorize } from "../../decorators/isLogged.ts";
+import { User } from "../../models/user.ts";
 
 @Controller()
 export class CategoryController {
   constructor(private readonly service: CategoryService) {}
 
   @Get()
-  async getAllCategoriesByUser(
-    @QueryParam("user") user: string,
+  async getAllCategories(
     @Res() res: Response,
-    @Req() req: Request
+    @Req() req: Request,
+    @Authorize() user: any
   ) {
     try {
-      if (user) {
-        return await this.service.findAllCategoriesByUser(user);
+      console.log("user" + res.result.user);
+      if (res.result.user) {
+        console.log("dentro_user");
+        return await this.service.findAllCategories();
       }
     } catch (error) {
       console.log(error);

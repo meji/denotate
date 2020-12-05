@@ -65,7 +65,7 @@ export class UserController {
 
     const jwt = await verify(token, env.secret, "HS512");
 
-    if (!jwt || !jwt.iss || !jwt.exp) {
+    if (!jwt || !jwt.iss || !jwt.exp || jwt.exp < new Date().getTime()) {
       return null;
     }
 
@@ -138,7 +138,7 @@ export class UserController {
           );
           return { token };
         }
-        return new UnauthorizedError("Nope...");
+        return new UnauthorizedError("Not authorized");
       }
 
       return new NotFoundError("User Not Found...");
@@ -189,7 +189,6 @@ export class UserController {
   async getUser(@Req() req: ServerRequest) {
     try {
       const iss = await this.verifyAuth(req.headers);
-
       if (!iss) {
         return new ForbiddenError("Nope...");
       }

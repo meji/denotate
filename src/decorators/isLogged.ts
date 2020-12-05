@@ -1,11 +1,11 @@
 import {
+  container,
   Content,
   Context,
-  HookTarget,
   getMetadataArgsStorage,
-  container
+  HookTarget
 } from "../../deps.ts";
-import { getQueryParams } from "../utils";
+import { getQueryParams } from "../utils/index.ts";
 import { verifyUser } from "../utils/verifyToken.ts";
 
 enum BusinessType {
@@ -19,25 +19,39 @@ type AuthorizeRoleType = string | undefined;
 /**
  * Authorize decorator with role
  */
-export function Authorize(token?: AuthorizeRoleType): Function {
-  return function(object: any, methodName?: string) {
+export function Authorize(): Function {
+  return function(object: Object, methodName?: string) {
     // add hook to global metadata
     getMetadataArgsStorage().hooks.push({
       type: methodName ? BusinessType.Action : BusinessType.Controller,
       object,
       target: object.constructor,
       method: methodName ? methodName : "",
-      instance: container.resolve(AutorizeHook),
-      payload: token
+      instance: container.resolve(AutorizeHook)
     });
   };
 }
 
-export class AutorizeHook implements HookTarget<unknown, AuthorizeRoleType> {
-  onPreAction(context: Context<unknown>, role: AuthorizeRoleType) {
+export class AutorizeHook implements HookTarget<unknown, any> {
+  async onPreAction(context: Context<unknown>) {
     const queryParams = getQueryParams(context.request.url);
-    const token = queryParams.get("token");
-    if (token.length == 0 || !verifyUser(token)) {
+    if (queryParams) {
+      const token = queryParams.get("token");
+      if (token) {
+        await verifyUser(token).then(response => {
+          if (!response) {
+            context.response.result = Content({ error: { token: false } }, 403);
+            context.response.setImmediately();
+          } else {
+            context.response.result = Content({ user: response }, 200);
+            context.response.setImmediately();
+          }
+        });
+      } else {
+        context.response.result = Content({ error: { token: false } }, 403);
+        context.response.setImmediately();
+      }
+    } else {
       context.response.result = Content({ error: { token: false } }, 403);
       context.response.setImmediately();
     }

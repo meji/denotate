@@ -11,8 +11,8 @@ export class CategoryService {
     this.collection = database.collection("category");
   }
 
-  async findAllCategoriesByUser(user: string): Promise<CategoryDoc[]> {
-    return await this.collection.find({ user: user });
+  async findAllCategories(): Promise<CategoryDoc[]> {
+    return await this.collection.find({});
   }
 
   async findCategoryById(id: string): Promise<CategoryDoc> {
@@ -44,7 +44,6 @@ export class CategoryService {
 
   async getPostsFromCategory(id: string): Promise<any> {
     const category = await this.collection.findOne({ _id: { $oid: id } });
-    console.log(category);
     return category.posts;
   }
 }

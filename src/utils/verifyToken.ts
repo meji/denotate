@@ -4,16 +4,13 @@ import { UserService } from "../services/user.service.ts";
 
 export async function verifyUser(token: string) {
   const jwt = await verify(token, env.secret, "HS512");
-  if (!jwt || !jwt.iss || !jwt.exp) {
-    return null;
+  if (!jwt.iss || !jwt.exp || jwt.exp < new Date().getTime()) {
+    return false;
   }
   const user = jwt.iss;
   const userService = new UserService();
   try {
-    const userFinded = await userService.findUserById(user);
-    if (userFinded) {
-      return true;
-    }
+    return await userService.findUserById(user);
   } catch (e) {
     throw e;
   }
