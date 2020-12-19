@@ -45,6 +45,9 @@ export class CategoryController {
     @Res() response: Response,
     @Req() request: Request
   ) {
+    if (!isId(id)) {
+      return new NotFoundError("Category Not Found...");
+    }
     try {
       const document: CategoryDoc = await this.service.findCategoryById(id);
 

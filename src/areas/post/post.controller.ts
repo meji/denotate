@@ -36,6 +36,8 @@ export class PostController {
     try {
       if (isId(user) || isId(cat) || isId(tag)) {
         return await this.service.findAllPostsByQuery(user, cat, tag);
+      } else {
+        return await this.service.findAllPosts();
       }
     } catch (error) {
       console.log(error);
