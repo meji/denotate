@@ -1,5 +1,6 @@
 export interface ObjectID {
-  _id: {
-    $oid: string
-  }
+  _id: ID;
+}
+export interface ID {
+  $oid: string;
 }

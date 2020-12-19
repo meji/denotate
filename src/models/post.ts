@@ -1,5 +1,5 @@
 import { User } from "./user.ts";
-import { ObjectID } from "./id.ts";
+import { ID, ObjectID } from "./id.ts";
 
 export interface Post {
   title: string;
@@ -8,8 +8,8 @@ export interface Post {
   img?: string;
   featured?: boolean;
   author: User;
-  cats?: ObjectID[];
-  tags?: ObjectID[];
+  cats?: ID[];
+  tags?: ID[];
 }
 
 export type PostDoc = ObjectID & Post;

@@ -44,4 +44,11 @@ export class TagService {
     console.log(tag);
     return tag.posts;
   }
+  async updatePostInTag(id: string, post: { $oid: string }): Promise<number> {
+    const { modifiedCount } = await this.collection.updateOne(
+      { _id: { $oid: id } },
+      { $addToSet: { posts: post } }
+    );
+    return modifiedCount;
+  }
 }

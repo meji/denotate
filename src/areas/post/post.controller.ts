@@ -21,10 +21,16 @@ import { Post as PostContent, PostDoc } from "../../models/post.ts";
 import { PostService } from "../../services/post.service.ts";
 import { isId } from "../../utils/index.ts";
 import { getUserFromToken } from "../../utils/verifyToken.ts";
+import { CategoryService } from "../../services/category.service.ts";
+import { TagService } from "../../services/tag.service.ts";
 
 @Controller()
 export class PostController {
-  constructor(private readonly service: PostService) {}
+  constructor(
+    private readonly service: PostService,
+    private readonly serviceCategory: CategoryService,
+    private readonly serviceTag: TagService
+  ) {}
   @Get("/")
   async getAllPostsByQuery(
     @QueryParam("user") user: string,
@@ -101,6 +107,21 @@ export class PostController {
 
       const id = await this.service.insertPost(body);
       const postF = await this.service.findPostById(id.$oid);
+      const categories = postF.cats;
+      const tags = postF.tags;
+      if (categories) {
+        console.log("hay categoriaS");
+        categories.map(categoryId => {
+          this.serviceCategory.updatePostInCategory(categoryId.$oid, {
+            $oid: postF._id.$oid
+          });
+        });
+      }
+      // if (tags) {
+      //   tags.map(tag => {
+      //     this.serviceTag.updateTagById(tag._id.$oid, postF);
+      //   });
+      // }
       return Content(postF, 201);
     } catch (error) {
       console.log(error);
@@ -132,10 +153,33 @@ export class PostController {
           _id: { $oid: updatedId }
         } = document;
         const count = await this.service.updatePostById(id, body);
-
         if (count) {
+          const modifiedOne = await this.service.findPostById(id);
+          console.log(modifiedOne);
+          const categories = modifiedOne.cats;
+          console.log(categories);
+          const tags = modifiedOne.tags;
+          if (categories) {
+            categories.map(categoryId => {
+              this.serviceCategory.updatePostInCategory(categoryId.$oid, {
+                $oid: modifiedOne._id.$oid
+              });
+            });
+          } else if (tags) {
+            tags.map(categoryId => {
+              this.serviceTag.updatePostInTag(categoryId.$oid, {
+                $oid: modifiedOne._id.$oid
+              });
+            });
+          }
           return { updatedId };
         }
+
+        // if (tags) {
+        //   tags.map(tag => {
+        //     this.serviceTag.updateTagById(tag._id.$oid, postF);
+        //   });
+        // }
 
         return Content({ message: "Nothing Happened" }, 204);
       }

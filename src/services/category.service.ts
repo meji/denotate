@@ -1,6 +1,7 @@
 import { Injectable } from "../../deps.ts";
 import { Category, CategoryDoc } from "../models/category.ts";
 import db from "../config/db.ts";
+import { ObjectID } from "../models/id.ts";
 
 @Injectable()
 export class CategoryService {
@@ -35,6 +36,18 @@ export class CategoryService {
       { _id: { $oid: id } },
       { $set: post }
     );
+    return modifiedCount;
+  }
+
+  async updatePostInCategory(
+    id: string,
+    post: { $oid: string }
+  ): Promise<number> {
+    const { modifiedCount } = await this.collection.updateOne(
+      { _id: { $oid: id } },
+      { $addToSet: { posts: post } }
+    );
+    console.log("actualizando cateogoría " + id + "con posts" + post);
     return modifiedCount;
   }
 
