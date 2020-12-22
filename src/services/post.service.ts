@@ -46,7 +46,7 @@ export class PostService {
   ): Promise<PostDoc[]> {
     const posts = await this.collection.find({
       $or: [
-        { cat: { $oid: cat } },
+        { cats: { $all: [{ $oid: cat }] } },
         { user: { $oid: user } },
         { tags: { $all: [{ $oid: tag }] } }
       ]
