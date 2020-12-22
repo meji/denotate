@@ -108,14 +108,13 @@ export class PostController {
     } else {
       content = body;
     }
-
     try {
       if (Object.keys(body).length === 0) {
-        return new BadRequestError("Body Is Empty...");
+        return Content(new BadRequestError("Body Is Empty..."), 400);
       }
       const docFind = await this.service.findPostByTitle(body.title);
       if (docFind) {
-        return new BadRequestError("Post exists...");
+        return Content(new BadRequestError("Post exists..."), 400);
       }
       const id = await this.service.insertPost(content);
       const postF = await this.service.findPostById(id.$oid);
