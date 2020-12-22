@@ -184,7 +184,7 @@ export class CategoryController {
             });
           }
 
-          return { document };
+          return document;
         }
 
         return Content({ message: "Nothing Happened" }, 204);
