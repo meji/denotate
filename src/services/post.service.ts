@@ -20,7 +20,7 @@ export class PostService {
   }
 
   async findPostByTitle(query: string): Promise<PostDoc> {
-    return await this.collection.findOne({ query });
+    return await this.collection.findOne({ title: query });
   }
 
   async insertPost(post: Post): Promise<any> {
@@ -34,12 +34,6 @@ export class PostService {
     );
     return modifiedCount;
   }
-
-  // async updatePostByTitle(title: string, post: Partial<Post>): Promise<number> {
-  //   const { modifiedCount } = await this.collection.updateOne({ title }, { $set: post })
-  //
-  //   return modifiedCount
-  // }
 
   async deletePostById(id: string): Promise<number> {
     return await this.collection.deleteOne({ _id: { $oid: id } });

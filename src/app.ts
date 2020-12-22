@@ -1,7 +1,14 @@
-import { App, Content, Context, HttpError } from "../deps.ts";
+import { App, Content, Context, HttpError, CorsBuilder } from "../deps.ts";
 import { appSettings } from "./settings.ts";
 
 export const app = new App(appSettings);
+
+app.useCors(
+  new CorsBuilder()
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+);
 
 app.error((context: Context<any>, error: Error) => {
   context.response.result = Content(

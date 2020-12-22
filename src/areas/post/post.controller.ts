@@ -100,28 +100,24 @@ export class PostController {
     if ((await getUserFromToken(req.headers, false)) == false) {
       return Content(new ForbiddenError("Not Authorized"), 403);
     }
+    const author = await getUserFromToken(req.headers);
+    let content;
+    if (author) {
+      content = { ...body, author: author._id };
+    } else {
+      content = body;
+    }
+
     try {
       if (Object.keys(body).length === 0) {
         return new BadRequestError("Body Is Empty...");
       }
-
-      const id = await this.service.insertPost(body);
-      const postF = await this.service.findPostById(id.$oid);
-      const categories = postF.cats;
-      const tags = postF.tags;
-      if (categories) {
-        console.log("hay categoriaS");
-        categories.map(categoryId => {
-          this.serviceCategory.updatePostInCategory(categoryId.$oid, {
-            $oid: postF._id.$oid
-          });
-        });
+      const docFind = await this.service.findPostByTitle(body.title);
+      if (docFind) {
+        return new BadRequestError("Post exists...");
       }
-      // if (tags) {
-      //   tags.map(tag => {
-      //     this.serviceTag.updateTagById(tag._id.$oid, postF);
-      //   });
-      // }
+      const id = await this.service.insertPost(content);
+      const postF = await this.service.findPostById(id.$oid);
       return Content(postF, 201);
     } catch (error) {
       console.log(error);
@@ -145,7 +141,6 @@ export class PostController {
       if (Object.keys(body).length === 0) {
         return new BadRequestError("Body Is Empty...");
       }
-
       const document: PostDoc = await this.service.findPostById(id);
 
       if (document) {
@@ -155,9 +150,7 @@ export class PostController {
         const count = await this.service.updatePostById(id, body);
         if (count) {
           const modifiedOne = await this.service.findPostById(id);
-          console.log(modifiedOne);
           const categories = modifiedOne.cats;
-          console.log(categories);
           const tags = modifiedOne.tags;
           if (categories) {
             categories.map(categoryId => {
@@ -174,13 +167,6 @@ export class PostController {
           }
           return { updatedId };
         }
-
-        // if (tags) {
-        //   tags.map(tag => {
-        //     this.serviceTag.updateTagById(tag._id.$oid, postF);
-        //   });
-        // }
-
         return Content({ message: "Nothing Happened" }, 204);
       }
 

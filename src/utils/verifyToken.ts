@@ -3,12 +3,12 @@ import { verify } from "../../deps.ts";
 import env from "../config/env.ts";
 import { TokenService } from "../services/token.service.ts";
 import { UserService } from "../services/user.service.ts";
-import { User, UserWithoutPass } from "../models/user.ts";
+import { UserDocumentWithoutPass } from "../models/user.ts";
 
 export async function getUserFromToken(
   headers: Headers,
   admin?: boolean
-): Promise<UserWithoutPass | false> {
+): Promise<UserDocumentWithoutPass | false> {
   const bearer = headers.get("authorization");
   if (!bearer) {
     return false;

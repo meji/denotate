@@ -7,7 +7,7 @@ export interface Post {
   description?: string;
   img?: string;
   featured?: boolean;
-  author: User;
+  author: ID;
   cats?: ID[];
   tags?: ID[];
 }

@@ -84,9 +84,9 @@ export class UserController {
 
   @Post("/user/register")
   async registerUser(@Body() body: User, @Req() req: Request) {
-    if ((await getUserFromToken(req.headers, true)) == false) {
-      return Content(new ForbiddenError("Not Authorized"), 403);
-    }
+    // if ((await getUserFromToken(req.headers, true)) == false) {
+    //   return Content(new ForbiddenError("Not Authorized"), 403);
+    // }
     try {
       if (isEmpty(body)) {
         return new BadRequestError("Body Is Empty...");

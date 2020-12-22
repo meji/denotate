@@ -20,3 +20,4 @@ export interface UserWithoutPass {
 }
 
 export type UserDocument = ObjectID & User;
+export type UserDocumentWithoutPass = ObjectID & UserWithoutPass;
