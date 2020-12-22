@@ -51,6 +51,17 @@ export class CategoryService {
     return modifiedCount;
   }
 
+  async deletePostInCategory(
+    id: string,
+    post: { $oid: string }
+  ): Promise<number> {
+    const { modifiedCount } = await this.collection.updateOne(
+      { _id: { $oid: id } },
+      { $pull: { posts: post } }
+    );
+    return modifiedCount;
+  }
+
   async deleteCategoryById(id: string): Promise<number> {
     return await this.collection.deleteOne({ _id: { $oid: id } });
   }

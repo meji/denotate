@@ -191,18 +191,31 @@ export class PostController {
           _id: { $oid: deletedId }
         } = document;
         const count = await this.service.deletePostById(id);
-
+        const categories = document.cats;
+        const tags = document.tags;
+        if (categories) {
+          categories.map(categoryId => {
+            this.serviceCategory.deletePostInCategory(categoryId.$oid, {
+              $oid: document._id.$oid
+            });
+          });
+        } else if (tags) {
+          tags.map(categoryId => {
+            this.serviceTag.deletePostInTag(categoryId.$oid, {
+              $oid: document._id.$oid
+            });
+          });
+        }
         if (count) {
-          return { deletedId };
+          return document;
         }
 
         return Content({ message: "Nothing Happened" }, 204);
       }
 
-      return new NotFoundError("Vinyl Not Found...");
+      return new NotFoundError("Post Not Found...");
     } catch (error) {
       console.log(error);
-
       throw new InternalServerError("Failure On 'deletePostById' !");
     }
   }

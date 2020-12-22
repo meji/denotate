@@ -51,4 +51,11 @@ export class TagService {
     );
     return modifiedCount;
   }
+  async deletePostInTag(id: string, post: { $oid: string }): Promise<number> {
+    const { modifiedCount } = await this.collection.updateOne(
+      { _id: { $oid: id } },
+      { $pull: { posts: post } }
+    );
+    return modifiedCount;
+  }
 }
