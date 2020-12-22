@@ -26,19 +26,39 @@ import { getUserFromToken } from "../../utils/verifyToken.ts";
 export class TagController {
   constructor(private readonly service: TagService) {}
 
-  @Get()
-  async getAllTagsByUser(
+  // @Get()
+  // async getAllTagsByUser(
+  //   @QueryParam("user") user: string,
+  //   @Res() res: Response,
+  //   @Req() req: Request
+  // ) {
+  //   try {
+  //     if (user) {
+  //       return await this.service.findAllTagsByUser(user);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     throw new InternalServerError("Failure On 'findCategoriesByUser'!");
+  //   }
+  // }
+
+  @Get("/")
+  async getAllTagsByQuery(
     @QueryParam("user") user: string,
+    @QueryParam("post") post: string,
+    @QueryParam("title") title: string,
     @Res() res: Response,
     @Req() req: Request
   ) {
     try {
-      if (user) {
-        return await this.service.findAllTagsByUser(user);
+      if (isId(user) || isId(post) || title) {
+        return await this.service.findAllTagsByQuery(user, post, title);
+      } else {
+        return await this.service.findAllTags();
       }
     } catch (error) {
       console.log(error);
-      throw new InternalServerError("Failure On 'findCategoriesByUser'!");
+      throw new InternalServerError("Failure On 'findCategoriesByQuery'!");
     }
   }
 

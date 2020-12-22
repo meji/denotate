@@ -29,16 +29,75 @@ import { isId } from "../../utils/index.ts";
 @Controller()
 export class CategoryController {
   constructor(private readonly service: CategoryService) {}
+  // @Get("/")
+  // async getAllCategories(@Res() res: Response, @Req() req: Request) {
+  //   try {
+  //     return await this.service.findAllCategories();
+  //   } catch (error) {
+  //     console.log(error);
+  //     throw new InternalServerError("Failure On 'findCategoriesByUser'!");
+  //   }
+  // }
+
+  // @Get("/")
+  // async getCategoryByQuery(
+  //   @QueryParam("title") title: string,
+  //   @QueryParam("id") id: string,
+  //   @Res() response: Response,
+  //   @Req() request: Request
+  // ) {
+  //   if (!isId(id)) {
+  //     return new NotFoundError("Category Not Found...");
+  //   }
+  //   try {
+  //     const documentName: CategoryDoc = await this.service.findCategoryByQuery(
+  //       title
+  //     );
+  //     if (documentName) {
+  //       return Content(documentName, 200);
+  //     }
+  //     const documentId: CategoryDoc = await this.service.findCategoryByQuery(
+  //       id
+  //     );
+  //     if (documentId) {
+  //       return Content(documentId, 200);
+  //     }
+  //
+  //     return Content(
+  //       "Not found",
+  //       new NotFoundError("Not found...").httpCode || 202
+  //     );
+  //   } catch (error) {
+  //     console.log(error);
+  //
+  //     throw new InternalServerError("Failure On 'findCategoryById' !");
+  //   }
+  // }
   @Get("/")
-  async getAllCategories(@Res() res: Response, @Req() req: Request) {
+  async getAllCategoriesByQuery(
+    @QueryParam("user") user: string,
+    @QueryParam("cat") cat: string,
+    @QueryParam("post") post: string,
+    @QueryParam("title") title: string,
+    @Res() res: Response,
+    @Req() req: Request
+  ) {
     try {
-      return await this.service.findAllCategories();
+      if (isId(user) || isId(cat) || isId(post) || title) {
+        return await this.service.findAllCategoriesByQuery(
+          user,
+          cat,
+          post,
+          title
+        );
+      } else {
+        return await this.service.findAllCategories();
+      }
     } catch (error) {
       console.log(error);
-      throw new InternalServerError("Failure On 'findCategoriesByUser'!");
+      throw new InternalServerError("Failure On 'findCategoriesByQuery'!");
     }
   }
-
   @Get("/:id")
   async getCategory(
     @Param("id") id: string,
@@ -56,41 +115,6 @@ export class CategoryController {
       }
 
       return new NotFoundError("Category Not Found...");
-    } catch (error) {
-      console.log(error);
-
-      throw new InternalServerError("Failure On 'findCategoryById' !");
-    }
-  }
-
-  @Get("/byquery/")
-  async getCategoryByQuery(
-    @QueryParam("title") title: string,
-    @QueryParam("id") id: string,
-    @Res() response: Response,
-    @Req() request: Request
-  ) {
-    if (!isId(id)) {
-      return new NotFoundError("Category Not Found...");
-    }
-    try {
-      const documentName: CategoryDoc = await this.service.findCategoryByQuery(
-        title
-      );
-      if (documentName) {
-        return Content(documentName, 200);
-      }
-      const documentId: CategoryDoc = await this.service.findCategoryByQuery(
-        id
-      );
-      if (documentId) {
-        return Content(documentId, 200);
-      }
-
-      return Content(
-        "Not found",
-        new NotFoundError("Not found...").httpCode || 202
-      );
     } catch (error) {
       console.log(error);
 

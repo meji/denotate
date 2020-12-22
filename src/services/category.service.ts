@@ -2,6 +2,7 @@ import { Injectable } from "../../deps.ts";
 import { Category, CategoryDoc } from "../models/category.ts";
 import db from "../config/db.ts";
 import { ObjectID } from "../models/id.ts";
+import { PostDoc } from "../models/post.ts";
 
 @Injectable()
 export class CategoryService {
@@ -20,8 +21,21 @@ export class CategoryService {
     return await this.collection.findOne({ _id: { $oid: id } });
   }
 
-  async findCategoryByQuery(query: string): Promise<CategoryDoc> {
-    return await this.collection.findOne({ query });
+  async findAllCategoriesByQuery(
+    user?: string,
+    cat?: string,
+    post?: string,
+    title?: string
+  ): Promise<PostDoc[]> {
+    const categories = await this.collection.find({
+      $or: [
+        { cats: { $all: [{ $oid: cat }] } },
+        { user: { $oid: user } },
+        { posts: { $all: [{ $oid: post }] } },
+        { title: title }
+      ]
+    });
+    return categories;
   }
 
   async insertCategory(category: Category): Promise<any> {

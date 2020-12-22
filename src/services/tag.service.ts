@@ -1,6 +1,8 @@
 import { Injectable } from "../../deps.ts";
 import { Tag, TagDoc } from "../models/tag.ts";
 import db from "../config/db.ts";
+import { PostDoc } from "../models/post.ts";
+import { CategoryDoc } from "../models/category.ts";
 
 @Injectable()
 export class TagService {
@@ -11,8 +13,22 @@ export class TagService {
     this.collection = database.collection("tag");
   }
 
-  async findAllTagsByUser(user: string): Promise<TagDoc[]> {
-    return await this.collection.find({ user: user });
+  async findAllTags(): Promise<CategoryDoc[]> {
+    return await this.collection.find({});
+  }
+  async findAllTagsByQuery(
+    user?: string,
+    post?: string,
+    title?: string
+  ): Promise<PostDoc[]> {
+    const tags = await this.collection.find({
+      $or: [
+        { user: { $oid: user } },
+        { posts: { $all: [{ $oid: post }] } },
+        { title: title }
+      ]
+    });
+    return tags;
   }
 
   async findTagById(id: string): Promise<TagDoc> {
