@@ -42,13 +42,15 @@ export class PostService {
   async findAllPostsByQuery(
     user?: string,
     cat?: string,
-    tag?: string
+    tag?: string,
+    title?: string
   ): Promise<PostDoc[]> {
     const posts = await this.collection.find({
       $or: [
         { cats: { $all: [{ $oid: cat }] } },
         { user: { $oid: user } },
-        { tags: { $all: [{ $oid: tag }] } }
+        { tags: { $all: [{ $oid: tag }] } },
+        { title: title }
       ]
     });
     return posts;

@@ -36,12 +36,13 @@ export class PostController {
     @QueryParam("user") user: string,
     @QueryParam("cat") cat: string,
     @QueryParam("tag") tag: string,
+    @QueryParam("title") title: string,
     @Res() res: Response,
     @Req() req: Request
   ) {
     try {
-      if (isId(user) || isId(cat) || isId(tag)) {
-        return await this.service.findAllPostsByQuery(user, cat, tag);
+      if (isId(user) || isId(cat) || isId(tag) || title) {
+        return await this.service.findAllPostsByQuery(user, cat, tag, title);
       } else {
         return await this.service.findAllPosts();
       }
@@ -75,25 +76,25 @@ export class PostController {
     }
   }
 
-  @Get("/bytitle/")
-  async getPostByTitle(
-    @QueryParam("title") title: string,
-    @Res() response: Response,
-    @Req() request: Request
-  ) {
-    try {
-      const documentName: PostDoc = await this.service.findPostByTitle(title);
-      if (documentName) {
-        return Content(documentName, 200);
-      }
-
-      return new NotFoundError("Post Not Found...");
-    } catch (error) {
-      console.log(error);
-
-      throw new InternalServerError("Failure On 'findPostById' !");
-    }
-  }
+  // @Get("/bytitle/")
+  // async getPostByTitle(
+  //   @QueryParam("title") title: string,
+  //   @Res() response: Response,
+  //   @Req() request: Request
+  // ) {
+  //   try {
+  //     const documentName: PostDoc = await this.service.findPostByTitle(title);
+  //     if (documentName) {
+  //       return Content(documentName, 200);
+  //     }
+  //
+  //     return new NotFoundError("Post Not Found...");
+  //   } catch (error) {
+  //     console.log(error);
+  //
+  //     throw new InternalServerError("Failure On 'findPostById' !");
+  //   }
+  // }
 
   @Post("/")
   async addPost(@Body() body: PostContent, @Req() req: Request) {
