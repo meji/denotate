@@ -21,26 +21,15 @@ import { TagDoc, Tag as TagContent } from "../../models/tag.ts";
 import { TagService } from "../../services/tag.service.ts";
 import { isId } from "../../utils/index.ts";
 import { getUserFromToken } from "../../utils/verifyToken.ts";
+import { CategoryDoc } from "../../models/category.ts";
+import { PostService } from "../../services/post.service.ts";
 
 @Controller()
 export class TagController {
-  constructor(private readonly service: TagService) {}
-
-  // @Get()
-  // async getAllTagsByUser(
-  //   @QueryParam("user") user: string,
-  //   @Res() res: Response,
-  //   @Req() req: Request
-  // ) {
-  //   try {
-  //     if (user) {
-  //       return await this.service.findAllTagsByUser(user);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     throw new InternalServerError("Failure On 'findCategoriesByUser'!");
-  //   }
-  // }
+  constructor(
+    private readonly service: TagService,
+    private readonly postService: PostService
+  ) {}
 
   @Get("/")
   async getAllTagsByQuery(
@@ -86,34 +75,6 @@ export class TagController {
     }
   }
 
-  @Get("/byquery/")
-  async getTagByQuery(
-    @QueryParam("title") title: string,
-    @QueryParam("id") id: string,
-    @Res() response: Response,
-    @Req() request: Request
-  ) {
-    if (!isId(id)) {
-      return new NotFoundError("Tag Not Found...");
-    }
-    try {
-      const documentName: TagDoc = await this.service.findTagByQuery(title);
-      if (documentName) {
-        return Content(documentName, 200);
-      }
-      const documentId: TagDoc = await this.service.findTagByQuery(id);
-      if (documentId) {
-        return Content(documentId, 200);
-      }
-
-      return new NotFoundError("Tag Not Found...");
-    } catch (error) {
-      console.log(error);
-
-      throw new InternalServerError("Failure On 'findTagById' !");
-    }
-  }
-
   @Post("/")
   async addTag(@Body() body: TagContent, @Req() req: Request) {
     if ((await getUserFromToken(req.headers, false)) == false) {
@@ -123,10 +84,17 @@ export class TagController {
       if (Object.keys(body).length === 0) {
         return new BadRequestError("Body Is Empty...");
       }
-
+      const docFind = await this.service.findAllTagsByQuery(
+        undefined,
+        undefined,
+        body.title
+      );
+      if (docFind && docFind.length > 0) {
+        return Content(new BadRequestError("Tag exists..."), 400);
+      }
       const id = await this.service.insertTag(body);
-      const postF = await this.service.findTagById(id.$oid);
-      return Content(postF, 201);
+      const tagF = await this.service.findTagById(id.$oid);
+      return Content(tagF, 201);
     } catch (error) {
       console.log(error);
       throw new InternalServerError("Failure On 'insertTag' !");
@@ -143,11 +111,17 @@ export class TagController {
       return Content(new ForbiddenError("Not Authorized"), 403);
     }
     if (!isId(id)) {
-      return new NotFoundError("Tag Not Found...");
+      return Content(
+        "Not found",
+        new NotFoundError("Body Empty...").httpCode || 404
+      );
     }
     try {
       if (Object.keys(body).length === 0) {
-        return new BadRequestError("Body Is Empty...");
+        return Content(
+          "Not found",
+          new NotFoundError("Body Empty...").httpCode || 202
+        );
       }
 
       const document: TagDoc = await this.service.findTagById(id);
@@ -157,15 +131,18 @@ export class TagController {
           _id: { $oid: updatedId }
         } = document;
         const count = await this.service.updateTagById(id, body);
+        const tagModified: CategoryDoc = await this.service.findTagById(
+          updatedId
+        );
 
-        if (count) {
-          return { updatedId };
+        if (count && tagModified) {
+          return Content(tagModified, 200);
         }
 
         return Content({ message: "Nothing Happened" }, 204);
       }
 
-      return new NotFoundError("Vinyl Not Found...");
+      return new NotFoundError("Tag Not Found...");
     } catch (error) {
       console.log(error);
 
@@ -188,13 +165,20 @@ export class TagController {
         const count = await this.service.deleteTagById(id);
 
         if (count) {
-          return { deletedId };
+          const posts = document.posts;
+          if (posts) {
+            posts.map(postId => {
+              this.postService.deleteTagFromPost(postId.$oid, deletedId);
+            });
+          }
+
+          return document;
         }
 
         return Content({ message: "Nothing Happened" }, 204);
       }
 
-      return new NotFoundError("Vinyl Not Found...");
+      return new NotFoundError("Tag Not Found...");
     } catch (error) {
       console.log(error);
 

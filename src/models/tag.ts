@@ -1,5 +1,4 @@
-import { Post } from "./post.ts";
-import { ObjectID } from "./id.ts";
+import { ID, ObjectID } from "./id.ts";
 
 export interface Tag {
   title: string;
@@ -7,7 +6,7 @@ export interface Tag {
   description?: string;
   img?: string;
   featured?: boolean;
-  posts?: Post[];
+  posts?: ID[];
 }
 
 export type TagDoc = ObjectID & Tag;
