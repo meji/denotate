@@ -29,7 +29,7 @@ import { isId } from "../../utils/index.ts";
 @Controller()
 export class CategoryController {
   constructor(private readonly service: CategoryService) {}
-  @Get()
+  @Get("/")
   async getAllCategories(@Res() res: Response, @Req() req: Request) {
     try {
       return await this.service.findAllCategories();
