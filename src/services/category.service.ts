@@ -61,7 +61,6 @@ export class CategoryService {
       { _id: { $oid: id } },
       { $addToSet: { posts: post } }
     );
-    console.log("actualizando cateogoría " + id + "con posts" + post);
     return modifiedCount;
   }
 

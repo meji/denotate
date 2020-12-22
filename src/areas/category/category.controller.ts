@@ -131,10 +131,18 @@ export class CategoryController {
       if (Object.keys(body).length === 0) {
         return new BadRequestError("Body Is Empty...");
       }
-
+      const docFind = await this.service.findAllCategoriesByQuery(
+        undefined,
+        undefined,
+        undefined,
+        body.title
+      );
+      if (docFind && docFind.length > 0) {
+        return Content(new BadRequestError("Category exists..."), 400);
+      }
       const id = await this.service.insertCategory(body);
-      const postF = await this.service.findCategoryById(id.$oid);
-      return Content(postF, 201);
+      const catF = await this.service.findCategoryById(id.$oid);
+      return Content(catF, 201);
     } catch (error) {
       console.log(error);
       throw new InternalServerError("Failure On 'insertCategory' !");
