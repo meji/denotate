@@ -1,4 +1,4 @@
-import { ObjectID } from "./id.ts";
+import { ID, ObjectID } from "./id.ts";
 
 export interface Category {
   title: string;
@@ -6,8 +6,8 @@ export interface Category {
   description?: string;
   img?: string;
   featured?: boolean;
-  posts?: ObjectID[];
-  categories?: Category[];
+  posts?: ID[];
+  cats?: ID[];
 }
 
 export type CategoryDoc = ObjectID & Category;

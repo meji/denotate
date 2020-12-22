@@ -39,6 +39,23 @@ export class PostService {
     return await this.collection.deleteOne({ _id: { $oid: id } });
   }
 
+  async deleteCategoryFromPost(
+    id: string,
+    idCategory: string
+  ): Promise<number> {
+    return await this.collection.updateOne(
+      { _id: { $oid: id } },
+      { $pull: { cats: { $oid: idCategory } } }
+    );
+  }
+
+  async deleteTagFromPost(id: string, idTag: string): Promise<number> {
+    return await this.collection.updateOne(
+      { _id: { $oid: id } },
+      { $pull: { tags: { $oid: idTag } } }
+    );
+  }
+
   async findAllPostsByQuery(
     user?: string,
     cat?: string,

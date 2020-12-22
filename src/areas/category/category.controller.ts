@@ -25,54 +25,14 @@ import {
 import { CategoryService } from "../../services/category.service.ts";
 import { getUserFromToken } from "../../utils/verifyToken.ts";
 import { isId } from "../../utils/index.ts";
+import { PostService } from "../../services/post.service.ts";
 
 @Controller()
 export class CategoryController {
-  constructor(private readonly service: CategoryService) {}
-  // @Get("/")
-  // async getAllCategories(@Res() res: Response, @Req() req: Request) {
-  //   try {
-  //     return await this.service.findAllCategories();
-  //   } catch (error) {
-  //     console.log(error);
-  //     throw new InternalServerError("Failure On 'findCategoriesByUser'!");
-  //   }
-  // }
-
-  // @Get("/")
-  // async getCategoryByQuery(
-  //   @QueryParam("title") title: string,
-  //   @QueryParam("id") id: string,
-  //   @Res() response: Response,
-  //   @Req() request: Request
-  // ) {
-  //   if (!isId(id)) {
-  //     return new NotFoundError("Category Not Found...");
-  //   }
-  //   try {
-  //     const documentName: CategoryDoc = await this.service.findCategoryByQuery(
-  //       title
-  //     );
-  //     if (documentName) {
-  //       return Content(documentName, 200);
-  //     }
-  //     const documentId: CategoryDoc = await this.service.findCategoryByQuery(
-  //       id
-  //     );
-  //     if (documentId) {
-  //       return Content(documentId, 200);
-  //     }
-  //
-  //     return Content(
-  //       "Not found",
-  //       new NotFoundError("Not found...").httpCode || 202
-  //     );
-  //   } catch (error) {
-  //     console.log(error);
-  //
-  //     throw new InternalServerError("Failure On 'findCategoryById' !");
-  //   }
-  // }
+  constructor(
+    private readonly service: CategoryService,
+    private readonly postService: PostService
+  ) {}
   @Get("/")
   async getAllCategoriesByQuery(
     @QueryParam("user") user: string,
@@ -212,7 +172,19 @@ export class CategoryController {
         const count = await this.service.deleteCategoryById(id);
 
         if (count) {
-          return { deletedId };
+          const categories = document.cats;
+          const posts = document.posts;
+          if (categories) {
+            categories.map(categoryId => {
+              this.service.deleteCategoryById(categoryId.$oid);
+            });
+          } else if (posts) {
+            posts.map(postId => {
+              this.postService.deleteCategoryFromPost(postId.$oid, deletedId);
+            });
+          }
+
+          return { document };
         }
 
         return Content({ message: "Nothing Happened" }, 204);
