@@ -178,16 +178,18 @@ export class CategoryController {
         const {
           _id: { $oid: updatedId }
         } = document;
-        const count = await this.service.updateCategoryById(id, body);
+        const count = await this.service.updateCategoryById(updatedId, body);
+        const catModified: CategoryDoc = await this.service.findCategoryById(
+          updatedId
+        );
 
-        if (count) {
-          return { updatedId };
+        if (count && catModified) {
+          return Content(catModified, 200);
         }
-
         return Content({ message: "Nothing Happened" }, 204);
       }
 
-      return new NotFoundError("Vinyl Not Found...");
+      return new NotFoundError("Category Not Found...");
     } catch (error) {
       console.log(error);
 

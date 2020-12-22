@@ -44,11 +44,11 @@ export class CategoryService {
 
   async updateCategoryById(
     id: string,
-    post: Partial<Category>
+    content: Partial<Category>
   ): Promise<number> {
     const { modifiedCount } = await this.collection.updateOne(
       { _id: { $oid: id } },
-      { $set: post }
+      { $set: content }
     );
     return modifiedCount;
   }
