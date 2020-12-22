@@ -165,7 +165,7 @@ export class PostController {
               });
             });
           }
-          return { updatedId };
+          return this.service.findPostById(updatedId);
         }
         return Content({ message: "Nothing Happened" }, 204);
       }
