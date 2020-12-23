@@ -28,7 +28,7 @@ export class SiteController {
       return await this.service.getSiteData();
     } catch (error) {
       console.log(error);
-      throw new InternalServerError("Failure On 'findCategoriesByQuery'!");
+      throw new InternalServerError("Failure On getSiteData!");
     }
   }
   @Post("/")
@@ -38,7 +38,7 @@ export class SiteController {
         return new BadRequestError("Body Is Empty...");
       }
       const isSiteSetted = await this.service.getSiteData();
-      if (isSiteSetted) {
+      if (isSiteSetted.title) {
         return Content(new BadRequestError("Site exists..."), 400);
       }
       const site = await this.service.createSiteData(body);
@@ -60,11 +60,8 @@ export class SiteController {
       if (Object.keys(body).length === 0) {
         return new BadRequestError("Body Is Empty...");
       }
-      const count = await this.service.updateSiteData(body);
-      if (count == 1) {
-        return Content(await this.service.getSiteData(), 201);
-      }
-      return Content({ message: "Nothing happened" }, 204);
+      const updatedData = await this.service.updateSiteData(body);
+      return Content(updatedData, 201);
     } catch (error) {
       console.log(error);
       throw new InternalServerError("Failure On update Site!");
