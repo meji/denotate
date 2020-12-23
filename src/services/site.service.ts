@@ -11,16 +11,18 @@ export class SiteService {
     this.collection = database.collection("site");
   }
   async getSiteData(): Promise<Partial<SiteDoc>> {
-    return await this.collection.findOne({});
+    const data = await this.collection.findOne({});
+    data ? delete data.new : null;
+    return data;
   }
   async updateSiteData(data: Partial<Site>): Promise<number> {
     const { modifiedCount } = await this.collection.updateOne(
       {},
-      { $set: data }
+      { $set: { ...data, new: true } }
     );
     return modifiedCount;
   }
   async createSiteData(site: Partial<Site>): Promise<any> {
-    return await this.collection.insertOne(site);
+    return await this.collection.insertOne({ ...site, new: true });
   }
 }

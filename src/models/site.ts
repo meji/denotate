@@ -5,6 +5,7 @@ export interface Site {
   brief: string;
   logo: string;
   color: string;
+  new: boolean;
 }
 
 export type SiteDoc = ObjectID & Site;
