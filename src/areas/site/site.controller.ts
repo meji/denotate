@@ -60,11 +60,14 @@ export class SiteController {
       if (Object.keys(body).length === 0) {
         return new BadRequestError("Body Is Empty...");
       }
-      const site = await this.service.updateSiteData(body);
-      return Content(site, 201);
+      const count = await this.service.updateSiteData(body);
+      if (count == 1) {
+        return Content(await this.service.getSiteData(), 201);
+      }
+      return Content({ message: "Nothing happened" }, 204);
     } catch (error) {
       console.log(error);
-      throw new InternalServerError("Failure On create Site!");
+      throw new InternalServerError("Failure On update Site!");
     }
   }
 }

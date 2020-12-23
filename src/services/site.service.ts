@@ -17,7 +17,9 @@ export class SiteService {
     }
     return siteData;
   }
-  async updateSiteData(data: Partial<Site>): Promise<SiteDoc> {
+  async updateSiteData(data: Partial<Site>): Promise<number> {
+    const path = "./siteData.json";
+    await writeJson(path, data);
     const { modifiedCount } = await this.collection.updateOne(
       {},
       { $set: data }
