@@ -38,7 +38,7 @@ export class SiteController {
         return new BadRequestError("Body Is Empty...");
       }
       const isSiteSetted = await this.service.getSiteData();
-      if (isSiteSetted.title) {
+      if (isSiteSetted && isSiteSetted.title) {
         return Content(new BadRequestError("Site exists..."), 400);
       }
       const site = await this.service.createSiteData(body);
@@ -60,8 +60,11 @@ export class SiteController {
       if (Object.keys(body).length === 0) {
         return new BadRequestError("Body Is Empty...");
       }
-      const updatedData = await this.service.updateSiteData(body);
-      return Content(updatedData, 201);
+      const count = await this.service.updateSiteData(body);
+      if (count > 0) {
+        return Content(await this.service.getSiteData(), 201);
+      }
+      return Content({ message: "Nothing Happened" }, 204);
     } catch (error) {
       console.log(error);
       throw new InternalServerError("Failure On update Site!");

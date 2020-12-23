@@ -11,15 +11,9 @@ export class SiteService {
     this.collection = database.collection("site");
   }
   async getSiteData(): Promise<Partial<SiteDoc>> {
-    const siteData = await this.collection.findOne({});
-    if (siteData && siteData.database) {
-      delete siteData.database;
-    }
-    return siteData;
+    return await this.collection.findOne({});
   }
   async updateSiteData(data: Partial<Site>): Promise<number> {
-    const path = "./siteData.json";
-    await writeJson(path, data);
     const { modifiedCount } = await this.collection.updateOne(
       {},
       { $set: data }
@@ -27,8 +21,6 @@ export class SiteService {
     return modifiedCount;
   }
   async createSiteData(site: Partial<Site>): Promise<any> {
-    const path = "./siteData.json";
-    await writeJson(path, site);
     return await this.collection.insertOne(site);
   }
 }
