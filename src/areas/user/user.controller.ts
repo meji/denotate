@@ -82,7 +82,7 @@ export class UserController {
     return jwt.iss;
   }
 
-  @Post("/user/register")
+  @Post("/")
   async registerUser(@Body() body: User, @Req() req: Request) {
     // if ((await getUserFromToken(req.headers, true)) == false) {
     //   return Content(new ForbiddenError("Not Authorized"), 403);
@@ -119,7 +119,7 @@ export class UserController {
     }
   }
 
-  @Post("/user/login")
+  @Post("/login")
   async loginUser(@Body() body: { login: string; password: string }) {
     try {
       if (isEmpty(body)) {
@@ -154,7 +154,7 @@ export class UserController {
     }
   }
 
-  @Get("/user/logout")
+  @Get("/logout")
   async logoutUser(@Req() req: ServerRequest) {
     try {
       const iss = await this.verifyAuth(req.headers, true);
@@ -193,7 +193,7 @@ export class UserController {
     }
   }
 
-  @Get("/user")
+  @Get("/")
   async getUser(@Req() req: ServerRequest) {
     if ((await getUserFromToken(req.headers, false)) == false) {
       return Content(new ForbiddenError("Not Authorized"), 403);
@@ -222,7 +222,7 @@ export class UserController {
     }
   }
 
-  @Put("/user/pswd")
+  @Put("/pswd")
   async pswdUser(
     @Req() req: ServerRequest,
     @Body() body: { oldPswd: string; newPswd: string }
@@ -274,7 +274,7 @@ export class UserController {
     }
   }
 
-  @Put("/user")
+  @Put("/")
   async setUser(@Req() req: ServerRequest, @Body() body: Partial<User>) {
     if ((await getUserFromToken(req.headers, true)) == false) {
       return Content(new ForbiddenError("Not Authorized"), 403);
@@ -313,7 +313,7 @@ export class UserController {
     }
   }
 
-  @Delete("/user")
+  @Delete("/")
   async clearUser(@Req() req: ServerRequest) {
     if ((await getUserFromToken(req.headers, true)) == false) {
       return Content(new ForbiddenError("Not Authorized"), 403);
