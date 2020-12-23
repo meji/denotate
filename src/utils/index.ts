@@ -174,3 +174,20 @@ export function getQueryParams(url: string): URLSearchParams | undefined {
   if (!params) return undefined;
   return new URLSearchParams(params);
 }
+
+/**
+ * Util: write in a file Json
+ *
+ * @param {String} path
+ * @param {object} data
+ * @returns {string}
+ */
+
+export async function writeJson(path: string, data: object): Promise<string> {
+  try {
+    await Deno.writeTextFileSync(path, JSON.stringify(data));
+    return "Written to " + path;
+  } catch (e) {
+    return e.message;
+  }
+}

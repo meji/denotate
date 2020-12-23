@@ -5,4 +5,4 @@ import { SiteController } from "./site.controller.ts";
   baseRoute: "/site",
   controllers: [SiteController]
 })
-export class TagArea {}
+export class SiteArea {}

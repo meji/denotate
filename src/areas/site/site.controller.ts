@@ -33,9 +33,6 @@ export class SiteController {
   }
   @Post("/")
   async addSiteData(@Body() body: Partial<Site>, @Req() req: Request) {
-    if ((await getUserFromToken(req.headers, true)) == false) {
-      return Content(new ForbiddenError("Not Authorized"), 403);
-    }
     try {
       if (Object.keys(body).length === 0) {
         return new BadRequestError("Body Is Empty...");
@@ -45,7 +42,10 @@ export class SiteController {
         return Content(new BadRequestError("Site exists..."), 400);
       }
       const site = await this.service.createSiteData(body);
-      return Content(site, 201);
+      if (site) {
+        const siteData = await this.service.getSiteData();
+        return Content(siteData, 201);
+      }
     } catch (error) {
       console.log(error);
       throw new InternalServerError("Failure On create Site!");
