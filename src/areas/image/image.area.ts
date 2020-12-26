@@ -1,8 +1,8 @@
-import { Area } from '../../../deps.ts'
-import { ImageController } from './image.controller.ts'
+import { Area } from "../../../deps.ts";
+import { ImageController } from "./image.controller.ts";
 
 @Area({
-  baseRoute: '/image',
+  baseRoute: "/images",
   controllers: [ImageController]
 })
 export class ImageArea {}

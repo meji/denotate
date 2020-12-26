@@ -125,9 +125,7 @@ export class UserController {
       if (isEmpty(body)) {
         return new BadRequestError("Body Is Empty...");
       }
-
       const { login, password } = body;
-
       const {
         _id: { $oid: id },
         ...document
@@ -166,7 +164,7 @@ export class UserController {
       const document = await this.userService.findUserById(iss);
 
       if (document) {
-        return { token: null };
+        return null;
       }
 
       return new NotFoundError("User Not Found...");
@@ -177,7 +175,7 @@ export class UserController {
     }
   }
 
-  @Get("/users")
+  @Get("/all")
   async getAllUsers(@Req() req: Request) {
     if ((await getUserFromToken(req.headers, true)) == false) {
       return Content(new ForbiddenError("Not Authorized"), 403);
@@ -190,6 +188,15 @@ export class UserController {
       console.log(error);
 
       throw new InternalServerError("Failure On 'findAllUsers'");
+    }
+  }
+
+  @Get("/isadmin")
+  async isAdmin(@Req() req: ServerRequest) {
+    try {
+      return await this.userService.findAdmin();
+    } catch (e) {
+      console.log(e);
     }
   }
 

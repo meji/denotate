@@ -6,6 +6,7 @@ export interface Site {
   logo: string;
   color: string;
   new: boolean;
+  theme: string;
 }
 
 export type SiteDoc = ObjectID & Site;

@@ -26,7 +26,7 @@ export class SiteController {
   async getSiteData(@Res() res: Response, @Req() req: Request) {
     try {
       const data = await this.service.getSiteData();
-      return Content(data ? data : { new: true }, 201);
+      return Content(data);
     } catch (error) {
       console.log(error);
       throw new InternalServerError("Failure On getSiteData!");
