@@ -6,6 +6,5 @@ export * as colors from "https://deno.land/std@0.77.0/fmt/colors.ts";
 export * from "https://deno.land/std@0.77.0/fs/mod.ts";
 export * from "https://deno.land/x/alosaur@v0.25.0/mod.ts";
 export { AlosaurOpenApiBuilder } from "https://deno.land/x/alosaur@v0.25.0/openapi/mod.ts";
-export { encode } from "https://deno.land/std/encoding/base64.ts";
 
 

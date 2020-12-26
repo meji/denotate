@@ -45,17 +45,21 @@ export class ImageController {
     }
   }
 
-  @Get("/:url")
-  async getImage(
-    @Param("url") url: string,
-    @Res() response: Response,
-    @Req() request: Request
-  ) {
-    const img = await Deno.readFile("./public/uploads/" + url);
-    const head = new Headers();
-    head.set("content-type", "image/png");
-    Content({ headers: head, body: img, status: 200 });
-  }
+  // @Get("/:image")
+  // async getImage(
+  //   @Param("image") image: string,
+  //   @Res() response: Response,
+  //   @Req() request: Request
+  // ) {
+  //   try {
+  //     const img = await this.service.getImage(image);
+  //     const head = new Headers();
+  //     head.set("Content-Type", "image");
+  //     return Content({ body: img, headers: head }, 200);
+  //   } catch (e) {
+  //     return new InternalServerError(e);
+  //   }
+  // }
   @Delete("/:url")
   async deleteImage(
     @Res() response: Response,

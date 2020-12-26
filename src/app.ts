@@ -10,6 +10,11 @@ app.useCors(
     .AllowAnyHeader()
 );
 
+app.useStatic({
+  root: `${Deno.cwd()}/public/`,
+  baseRoute: "/"
+});
+
 app.error((context: Context<any>, error: Error) => {
   context.response.result = Content(
     "This page unprocessed error",

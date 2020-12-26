@@ -13,4 +13,5 @@ if (isNaN(port)) {
   console.log("This is not port number");
   exit(1);
 }
+
 await app.listen({ port: port });
