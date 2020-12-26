@@ -60,13 +60,19 @@ export class ImageController {
   //     return new InternalServerError(e);
   //   }
   // }
-  @Delete("/:url")
+  @Delete("/")
   async deleteImage(
     @Res() response: Response,
     @Req() request: Request,
-    @Param("url") url: string
+    @QueryParam("name") name: string
   ) {
-    await Deno.remove("./uploads/" + url);
-    return Content({ body: { message: "Image deleted" }, status: 200 });
+    console.log("name", name);
+    try {
+      console.log("name", name);
+      await this.service.deleteImage(name);
+      return Content({ body: { message: "Image deleted" }, status: 200 });
+    } catch (e) {
+      return new InternalServerError(e);
+    }
   }
 }

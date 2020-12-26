@@ -20,6 +20,11 @@ export class ImageService {
       return path;
     }
   }
+  async deleteImage(name: string): Promise<any> {
+    const path = Deno.cwd() + "/public/uploads/" + name;
+    console.log(path);
+    await Deno.remove(path);
+  }
 
   // async getImage(name: string): Promise<any> {
   //   return Deno.readFileSync("./public/uploads/" + name);
