@@ -232,6 +232,7 @@ export class UserController {
     @Req() req: ServerRequest,
     @Body() body: { oldPswd: string; newPswd: string }
   ) {
+    console.log(body);
     if ((await getUserFromToken(req.headers, false)) == false) {
       return Content(new ForbiddenError("Not Authorized"), 403);
     }
@@ -245,8 +246,10 @@ export class UserController {
       if (isEmpty(body)) {
         return new BadRequestError("Body Is Empty...");
       }
-
+      console.log(body);
       const { oldPswd, newPswd } = body;
+
+      console.log(oldPswd, newPswd);
 
       const document = await this.userService.findUserById(iss);
 
@@ -262,7 +265,7 @@ export class UserController {
           });
 
           if (count) {
-            return Content({ message: "Okay " }, 204);
+            return Content({ message: "Okay Password Changed" }, 200);
           }
 
           return Content({ message: "Nothing Happened" }, 204);
