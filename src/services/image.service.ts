@@ -17,7 +17,7 @@ export class ImageService {
       await Deno.writeFile(path, imgConverted, {
         create: true
       });
-      return path;
+      return name;
     }
   }
   async deleteImage(name: string): Promise<any> {

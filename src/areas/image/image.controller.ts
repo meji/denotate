@@ -45,21 +45,6 @@ export class ImageController {
     }
   }
 
-  // @Get("/:image")
-  // async getImage(
-  //   @Param("image") image: string,
-  //   @Res() response: Response,
-  //   @Req() request: Request
-  // ) {
-  //   try {
-  //     const img = await this.service.getImage(image);
-  //     const head = new Headers();
-  //     head.set("Content-Type", "image");
-  //     return Content({ body: img, headers: head }, 200);
-  //   } catch (e) {
-  //     return new InternalServerError(e);
-  //   }
-  // }
   @Delete("/")
   async deleteImage(
     @Res() response: Response,
