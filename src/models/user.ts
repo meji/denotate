@@ -5,7 +5,7 @@ export interface User {
   password: string;
   email: string;
   firstName?: string;
-  lastName?: string;
+  secondName?: string;
   admin?: boolean;
   posts?: ObjectID[];
 }
@@ -14,7 +14,7 @@ export interface UserWithoutPass {
   password?: string;
   email: string;
   firstName?: string;
-  lastName?: string;
+  secondName?: string;
   admin?: boolean;
   posts?: ObjectID[];
 }

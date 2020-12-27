@@ -18,7 +18,8 @@ import {
   compare,
   create,
   verify,
-  Request
+  Request,
+  Param
 } from "../../../deps.ts";
 import { User, UserDocument } from "../../models/user.ts";
 import { UserService } from "../../services/user.service.ts";
@@ -196,11 +197,12 @@ export class UserController {
     }
   }
 
-  @Get("/")
-  async getUser(@Req() req: ServerRequest) {
+  @Get("/:userid")
+  async getUser(@Req() req: ServerRequest, @Param("userid") userid: string) {
     if ((await getUserFromToken(req.headers, false)) == false) {
       return Content(new ForbiddenError("Not Authorized"), 403);
     }
+
     try {
       const iss = await this.verifyAuth(req.headers);
       if (!iss) {
@@ -211,10 +213,10 @@ export class UserController {
         password,
         _id: { $oid: id },
         ...document
-      } = await this.userService.findUserById(iss);
+      } = await this.userService.findUserById(userid ? userid : iss);
 
       if (document) {
-        return { id, ...document };
+        return { _id: { $oid: id }, ...document };
       }
 
       return new NotFoundError("User Not Found...");
@@ -277,8 +279,12 @@ export class UserController {
     }
   }
 
-  @Put("/")
-  async setUser(@Req() req: ServerRequest, @Body() body: Partial<User>) {
+  @Put("/:userid")
+  async setUser(
+    @Req() req: ServerRequest,
+    @Body() body: Partial<User>,
+    @Param("userid") userid: string
+  ) {
     if ((await getUserFromToken(req.headers, true)) == false) {
       return Content(new ForbiddenError("Not Authorized"), 403);
     }
@@ -288,21 +294,22 @@ export class UserController {
       if (!iss) {
         return new ForbiddenError("Nope...");
       }
-
+      console.log({ body });
       if (isEmpty(body)) {
         return new BadRequestError("Body Is Empty...");
       }
 
-      // CLEARFIX: Extract / Don't Save Pswd !
       const { password, ...user } = body;
 
-      const document: UserDocument = await this.userService.findUserById(iss);
+      const document: UserDocument = await this.userService.findUserById(
+        userid
+      );
 
       if (document) {
         const count = await this.userService.updateUserById(iss, user);
 
         if (count) {
-          return Content({ message: "Okay" }, 204);
+          return Content(await this.userService.findUserById(userid), 200);
         }
 
         return Content({ message: "Nothing Happened" }, 204);
