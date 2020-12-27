@@ -103,15 +103,11 @@ export class UserController {
       });
 
       const token = await create(
-        { alg: "HS256", typ: "JWT" },
-        {
-          iss: id,
-          exp: new Date().getTime() + 60 * 60 * 6 * 1000 // NOTE: 6h
-        },
+        { alg: "HS512", typ: "JWT" },
+        { iss: id, exp: new Date().getTime() + 60 * 60 * 6 * 1000 },
         env.secret
       );
-
-      return Content({ token }, 201);
+      return { token };
     } catch (error) {
       console.log(error);
 
