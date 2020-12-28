@@ -16,7 +16,7 @@ export class UserService {
   }
 
   async findAllUsers(): Promise<UserDocument[]> {
-    return await this.collection.find();
+    return await this.collection.find({});
   }
 
   async findAdmin(): Promise<Boolean> {

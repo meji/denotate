@@ -116,13 +116,43 @@ export class UserController {
     }
   }
 
+  @Post("/new")
+  async registerNewUser(@Body() body: User, @Req() req: Request) {
+    if ((await getUserFromToken(req.headers, true)) == false) {
+      return Content(new ForbiddenError("Not Authorized"), 403);
+    }
+    try {
+      if (isEmpty(body)) {
+        return new BadRequestError("Body Is Empty...");
+      }
+
+      const { password, ...user } = body;
+
+      const newSalt = await genSalt(10);
+      const hashedPswd = await hash(password, newSalt);
+
+      const { $oid: id } = await this.userService.insertUser({
+        password: hashedPswd,
+        ...user
+      });
+
+      return Content(id, 200);
+    } catch (error) {
+      console.log(error);
+
+      throw new InternalServerError("Failure On 'insertUser'");
+    }
+  }
+
   @Post("/login")
   async loginUser(@Body() body: { login: string; password: string }) {
     try {
       if (isEmpty(body)) {
         return new BadRequestError("Body Is Empty...");
       }
+
       const { login, password } = body;
+
       const {
         _id: { $oid: id },
         ...document
@@ -179,8 +209,10 @@ export class UserController {
     }
     try {
       const documents: UserDocument[] = await this.userService.findAllUsers();
-
-      return documents.map(({ login, password }) => ({ login, password }));
+      console.log(documents.map(({ password }) => ({ password })));
+      return documents.map(user => {
+        return { ...user, password: "" };
+      });
     } catch (error) {
       console.log(error);
 
