@@ -118,6 +118,23 @@ export class PostController {
       }
       const id = await this.service.insertPost(content);
       const postF = await this.service.findPostById(id.$oid);
+
+      const categories = postF.cats;
+      const tags = postF.tags;
+      if (categories) {
+        categories.map(categoryId => {
+          this.serviceCategory.updatePostInCategory(categoryId.$oid, {
+            $oid: postF._id.$oid
+          });
+        });
+      } else if (tags) {
+        tags.map(categoryId => {
+          this.serviceTag.updatePostInTag(categoryId.$oid, {
+            $oid: postF._id.$oid
+          });
+        });
+      }
+
       return Content(postF, 201);
     } catch (error) {
       console.log(error);
@@ -141,6 +158,7 @@ export class PostController {
       if (Object.keys(body).length === 0) {
         return new BadRequestError("Body Is Empty...");
       }
+
       const document: PostDoc = await this.service.findPostById(id);
 
       if (document) {
@@ -150,6 +168,27 @@ export class PostController {
         const count = await this.service.updatePostById(id, body);
         if (count) {
           const modifiedOne = await this.service.findPostById(id);
+          const newCats = modifiedOne.cats ? modifiedOne.cats : [];
+          const newTags = modifiedOne.cats ? modifiedOne.cats : [];
+
+          if (document.cats && modifiedOne) {
+            document.cats
+              .filter(cat => !newCats.includes(cat))
+              .map(cat =>
+                this.serviceCategory.deletePostInCategory(cat.$oid, {
+                  $oid: id
+                })
+              );
+          }
+          if (document.tags && modifiedOne) {
+            document.tags
+              .filter(tag => !newTags.includes(tag))
+              .map(tag =>
+                this.serviceTag.deletePostInTag(tag.$oid, {
+                  $oid: id
+                })
+              );
+          }
           const categories = modifiedOne.cats;
           const tags = modifiedOne.tags;
           if (categories) {
