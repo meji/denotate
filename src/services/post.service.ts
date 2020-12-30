@@ -62,14 +62,36 @@ export class PostService {
     tag?: string,
     title?: string
   ): Promise<PostDoc[]> {
+    console.log({ user, cat, tag, title });
+    const posts = await this.collection.find(
+      cat != undefined ? { cats: { $all: [{ $oid: cat }] } } : null,
+      user != undefined ? { user: { $oid: user } } : null,
+      tag != undefined
+        ? {
+            tags: {
+              $all: [tag]
+            }
+          }
+        : null,
+      title != undefined ? { title: title } : title
+    );
+    return posts;
+  }
+
+  async findAllpostsByTag(tag: string) {
     const posts = await this.collection.find({
-      $or: [
-        { cats: { $all: [{ $oid: cat }] } },
-        { user: { $oid: user } },
-        { tags: { $all: [{ $oid: tag }] } },
-        { title: title }
-      ]
+      tags: {
+        $all: [tag]
+      }
     });
     return posts;
+  }
+
+  async findAlltags(): Promise<string[]> {
+    const postsWithTags = await this.collection.find({
+      tags: { $all: [{}] }
+    });
+    const tags = [...postsWithTags.map((post: PostDoc) => post.tags)];
+    return tags;
   }
 }

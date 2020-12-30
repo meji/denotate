@@ -41,7 +41,7 @@ export class PostController {
     @Req() req: Request
   ) {
     try {
-      if (isId(user) || isId(cat) || isId(tag) || title) {
+      if (isId(user) || isId(cat) || tag || title) {
         return await this.service.findAllPostsByQuery(user, cat, tag, title);
       } else {
         return await this.service.findAllPosts();
@@ -75,26 +75,6 @@ export class PostController {
       throw new InternalServerError("Failure On 'findPostById' !");
     }
   }
-
-  // @Get("/bytitle/")
-  // async getPostByTitle(
-  //   @QueryParam("title") title: string,
-  //   @Res() response: Response,
-  //   @Req() request: Request
-  // ) {
-  //   try {
-  //     const documentName: PostDoc = await this.service.findPostByTitle(title);
-  //     if (documentName) {
-  //       return Content(documentName, 200);
-  //     }
-  //
-  //     return new NotFoundError("Post Not Found...");
-  //   } catch (error) {
-  //     console.log(error);
-  //
-  //     throw new InternalServerError("Failure On 'findPostById' !");
-  //   }
-  // }
 
   @Post("/")
   async addPost(@Body() body: PostContent, @Req() req: Request) {
@@ -256,6 +236,31 @@ export class PostController {
     } catch (error) {
       console.log(error);
       throw new InternalServerError("Failure On 'deletePostById' !");
+    }
+  }
+
+  @Get("/bytag/:tag")
+  async getAllPostsByTag(
+    @Param("tag") tag: string,
+    @Res() res: Response,
+    @Req() req: Request
+  ) {
+    try {
+      if (tag) {
+        return await this.service.findAllpostsByTag(tag);
+      }
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerError("Failure On 'findPostsByTag'!");
+    }
+  }
+  @Get("/tags")
+  async getAllTags(@Res() res: Response, @Req() req: Request) {
+    try {
+      return await this.service.findAlltags();
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerError("Failure On 'findPostsByUser'!");
     }
   }
 }
