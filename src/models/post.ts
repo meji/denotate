@@ -9,7 +9,7 @@ export interface Post {
   featured?: boolean;
   author: ID;
   cats?: ID[];
-  tags?: ID[];
+  tags?: string[];
 }
 
 export type PostDoc = ObjectID & Post;

@@ -49,13 +49,6 @@ export class PostService {
     );
   }
 
-  async deleteTagFromPost(id: string, idTag: string): Promise<number> {
-    return await this.collection.updateOne(
-      { _id: { $oid: id } },
-      { $pull: { tags: { $oid: idTag } } }
-    );
-  }
-
   async findAllPostsByQuery(
     user?: string,
     cat?: string,
@@ -88,10 +81,14 @@ export class PostService {
   }
 
   async findAlltags(): Promise<string[]> {
-    const postsWithTags = await this.collection.find({
-      tags: { $all: [{}] }
+    const postsWithTags = await this.collection.find({});
+    const tags: string[] = [];
+    postsWithTags.map((post: PostDoc) => {
+      const thistags = post.tags;
+      thistags
+        ? tags.push(...thistags.filter(tag => !tags.includes(tag)))
+        : null;
     });
-    const tags = [...postsWithTags.map((post: PostDoc) => post.tags)];
     return tags;
   }
 }

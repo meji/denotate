@@ -22,14 +22,12 @@ import { PostService } from "../../services/post.service.ts";
 import { isId } from "../../utils/index.ts";
 import { getUserFromToken } from "../../utils/verifyToken.ts";
 import { CategoryService } from "../../services/category.service.ts";
-import { TagService } from "../../services/tag.service.ts";
 
 @Controller()
 export class PostController {
   constructor(
     private readonly service: PostService,
-    private readonly serviceCategory: CategoryService,
-    private readonly serviceTag: TagService
+    private readonly serviceCategory: CategoryService
   ) {}
   @Get("/")
   async getAllPostsByQuery(
@@ -100,16 +98,9 @@ export class PostController {
       const postF = await this.service.findPostById(id.$oid);
 
       const categories = postF.cats;
-      const tags = postF.tags;
       if (categories) {
         categories.map(categoryId => {
           this.serviceCategory.updatePostInCategory(categoryId.$oid, {
-            $oid: postF._id.$oid
-          });
-        });
-      } else if (tags) {
-        tags.map(categoryId => {
-          this.serviceTag.updatePostInTag(categoryId.$oid, {
             $oid: postF._id.$oid
           });
         });
@@ -160,26 +151,10 @@ export class PostController {
                 })
               );
           }
-          if (document.tags && modifiedOne) {
-            document.tags
-              .filter(tag => !newTags.includes(tag))
-              .map(tag =>
-                this.serviceTag.deletePostInTag(tag.$oid, {
-                  $oid: id
-                })
-              );
-          }
           const categories = modifiedOne.cats;
-          const tags = modifiedOne.tags;
           if (categories) {
             categories.map(categoryId => {
               this.serviceCategory.updatePostInCategory(categoryId.$oid, {
-                $oid: modifiedOne._id.$oid
-              });
-            });
-          } else if (tags) {
-            tags.map(categoryId => {
-              this.serviceTag.updatePostInTag(categoryId.$oid, {
                 $oid: modifiedOne._id.$oid
               });
             });
@@ -211,16 +186,9 @@ export class PostController {
         } = document;
         const count = await this.service.deletePostById(id);
         const categories = document.cats;
-        const tags = document.tags;
         if (categories) {
           categories.map(categoryId => {
             this.serviceCategory.deletePostInCategory(categoryId.$oid, {
-              $oid: document._id.$oid
-            });
-          });
-        } else if (tags) {
-          tags.map(categoryId => {
-            this.serviceTag.deletePostInTag(categoryId.$oid, {
               $oid: document._id.$oid
             });
           });
@@ -260,7 +228,7 @@ export class PostController {
       return await this.service.findAlltags();
     } catch (error) {
       console.log(error);
-      throw new InternalServerError("Failure On 'findPostsByUser'!");
+      throw new InternalServerError("Failure On 'findAllTags'!");
     }
   }
 }
