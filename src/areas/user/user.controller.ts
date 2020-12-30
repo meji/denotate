@@ -389,4 +389,22 @@ export class UserController {
       throw new InternalServerError("Failure On 'deleteUserById'");
     }
   }
+
+  @Get("/thisisadmin")
+  async thisIsAdmin(@Req() req: ServerRequest) {
+    if ((await getUserFromToken(req.headers, true)) == false) {
+      console.log("false");
+    }
+    console.log("true");
+  }
+
+  @Get("/thisislogged")
+  async thisIsLogged(@Req() req: ServerRequest) {
+    if ((await getUserFromToken(req.headers, false)) == false) {
+      console.log("false");
+      return false;
+    }
+    console.log("true");
+    return true;
+  }
 }
