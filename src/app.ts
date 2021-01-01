@@ -17,7 +17,7 @@ app.useStatic({
 
 app.error((context: Context<any>, error: Error) => {
   context.response.result = Content(
-    "This page unprocessed error",
+    "There is a 500 server error",
     (error as HttpError).httpCode || 500
   );
   context.response.setImmediately();

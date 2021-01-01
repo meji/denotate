@@ -3,7 +3,7 @@ import { MiddlewareTarget } from "../models/middleware-target.ts";
 import env from "../config/env.ts";
 import { paddingLeft, formatClock } from "../utils/index.ts";
 
-@Middleware(new RegExp("/api/"))
+@Middleware(new RegExp("/"))
 export class Log implements MiddlewareTarget {
   date = new Date();
   onPreRequest(context: Context<unknown>) {
@@ -12,7 +12,7 @@ export class Log implements MiddlewareTarget {
       if (env.denoEnv !== "prod") {
         console.log(paddingLeft({ maxLength: 50, char: "-" }));
       }
-      resolve();
+      resolve("");
     });
   }
   onPostRequest({ url, method }: ServerRequest): Promise<void> {

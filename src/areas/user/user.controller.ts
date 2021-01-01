@@ -85,9 +85,6 @@ export class UserController {
 
   @Post("/")
   async registerUser(@Body() body: User, @Req() req: Request) {
-    // if ((await getUserFromToken(req.headers, true)) == false) {
-    //   return Content(new ForbiddenError("Not Authorized"), 403);
-    // }
     try {
       if (isEmpty(body)) {
         return new BadRequestError("Body Is Empty...");
@@ -223,7 +220,11 @@ export class UserController {
   @Get("/isadmin")
   async isAdmin(@Req() req: ServerRequest) {
     try {
-      return await this.userService.findAdmin();
+      if (await this.userService.findAdmin()) {
+        return Content(true, 200);
+      } else {
+        return Content(false, 403);
+      }
     } catch (e) {
       console.log(e);
     }
@@ -393,16 +394,16 @@ export class UserController {
   @Get("/thisisadmin")
   async thisIsAdmin(@Req() req: ServerRequest) {
     if ((await getUserFromToken(req.headers, true)) == false) {
-      return false;
+      return Content(false, 403);
     }
-    return true;
+    return Content(true, 200);
   }
 
   @Get("/thisislogged")
   async thisIsLogged(@Req() req: ServerRequest) {
     if ((await getUserFromToken(req.headers, false)) == false) {
-      return false;
+      return Content(false, 403);
     }
-    return true;
+    return Content(true, 200);
   }
 }
