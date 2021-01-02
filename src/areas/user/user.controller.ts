@@ -37,9 +37,7 @@ export class UserController {
     private userService: UserService,
     private tokenService: TokenService,
     private mailService: MailService
-  ) {
-    this.mailService = new MailService(env.user, env.password)
-  }
+  ) {}
 
   /**
    * Verify Authorization
@@ -106,7 +104,7 @@ export class UserController {
         { iss: id, exp: new Date().getTime() + 60 * 60 * 6 * 1000 },
         env.secret
       )
-      this.mailService.send(`Bienvenido a Denotate ${user.firstName}`)
+      await this.mailService.send(`Bienvenido a Denotate ${user.firstName}`)
       return { token }
     } catch (error) {
       console.log(error)

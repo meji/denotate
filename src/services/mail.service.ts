@@ -1,4 +1,5 @@
 import { Injectable, SmtpClient } from '../../deps.ts'
+import env from '../config/env.ts'
 export const client = new SmtpClient()
 
 @Injectable()
@@ -6,9 +7,9 @@ export class MailService {
   private user: string
   private pass: string
 
-  constructor(user: string, pass: string) {
-    this.user = user
-    this.pass = pass
+  constructor() {
+    this.user = env.user
+    this.pass = env.password
   }
 
   async connect() {
