@@ -104,7 +104,12 @@ export class UserController {
         { iss: id, exp: new Date().getTime() + 60 * 60 * 6 * 1000 },
         env.secret
       )
-      await this.mailService.send(`Bienvenido a Denotate ${user.firstName}`)
+      await this.mailService.connect().then(async () => {
+        console.log('dentro')
+        await this.mailService
+          .send(`Bienvenido a Denotate ${user.firstName}`, user.email)
+          .then(async () => await this.mailService.close())
+      })
       return { token }
     } catch (error) {
       console.log(error)
@@ -206,7 +211,6 @@ export class UserController {
     }
     try {
       const documents: UserDocument[] = await this.userService.findAllUsers()
-      console.log(documents.map(({ password }) => ({ password })))
       return documents.map(user => {
         return { ...user, password: '' }
       })

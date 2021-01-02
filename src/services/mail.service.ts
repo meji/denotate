@@ -20,10 +20,10 @@ export class MailService {
       password: this.pass
     })
   }
-  async send(content: string) {
+  async send(content: string, receiver: string) {
     await client.send({
       from: this.user,
-      to: this.pass,
+      to: receiver,
       subject: 'Bienvenido a Denotate',
       content: content
     })
