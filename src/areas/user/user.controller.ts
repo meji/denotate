@@ -32,10 +32,7 @@ type StringOrNull = string | null
 
 @Controller()
 export class UserController {
-  constructor(
-    private userService: UserService,
-    private tokenService: TokenService,
-  ) {}
+  constructor(private userService: UserService, private tokenService: TokenService) {}
 
   /**
    * Verify Authorization
