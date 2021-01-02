@@ -20,22 +20,26 @@ import {
   verify,
   Request,
   Param
-} from "../../../deps.ts";
-import { User, UserDocument } from "../../models/user.ts";
-import { UserService } from "../../services/user.service.ts";
-import { TokenService } from "../../services/token.service.ts";
-import env from "../../config/env.ts";
-import { isEmpty, convertBearerToToken } from "../../utils/index.ts";
-import { getUserFromToken } from "../../utils/verifyToken.ts";
+} from '../../../deps.ts'
+import { User, UserDocument } from '../../models/user.ts'
+import { UserService } from '../../services/user.service.ts'
+import { TokenService } from '../../services/token.service.ts'
+import env from '../../config/env.ts'
+import { isEmpty, convertBearerToToken } from '../../utils/index.ts'
+import { getUserFromToken } from '../../utils/verifyToken.ts'
+import { MailService } from '../../services/mail.service.ts'
 
-type StringOrNull = string | null;
+type StringOrNull = string | null
 
 @Controller()
 export class UserController {
   constructor(
     private userService: UserService,
-    private tokenService: TokenService
-  ) {}
+    private tokenService: TokenService,
+    private mailService: MailService
+  ) {
+    this.mailService = new MailService(env.user, env.password)
+  }
 
   /**
    * Verify Authorization
@@ -44,32 +48,29 @@ export class UserController {
    * @param {Boolean} isLogout Is Logout (Default: 'false')
    * @returns {StringOrNull} Issuer
    */
-  private async verifyAuth(
-    headers: Headers,
-    isLogout = false
-  ): Promise<StringOrNull> {
-    const bearer = headers.get("authorization");
+  private async verifyAuth(headers: Headers, isLogout = false): Promise<StringOrNull> {
+    const bearer = headers.get('authorization')
 
     if (!bearer) {
-      return null;
+      return null
     }
 
-    const [token, header, payload, signature] = convertBearerToToken(bearer);
+    const [token, header, payload, signature] = convertBearerToToken(bearer)
 
-    const allTokens = await this.tokenService.findAllTokens();
+    const allTokens = await this.tokenService.findAllTokens()
 
     const tokens = allTokens.map(
       ({ header, payload, signature }) => `${header}.${payload}.${signature}`
-    );
+    )
 
     if (tokens.includes(token)) {
-      return null;
+      return null
     }
 
-    const jwt = await verify(token, env.secret, "HS512");
+    const jwt = await verify(token, env.secret, 'HS512')
 
     if (!jwt || !jwt.iss || !jwt.exp || jwt.exp < new Date().getTime()) {
-      return null;
+      return null
     }
 
     if (isLogout) {
@@ -78,332 +79,328 @@ export class UserController {
         payload,
         signature,
         exp: jwt.exp
-      });
+      })
     }
-    return jwt.iss;
+    return jwt.iss
   }
 
-  @Post("/")
+  @Post('/')
   async registerUser(@Body() body: User, @Req() req: Request) {
     try {
       if (isEmpty(body)) {
-        return new BadRequestError("Body Is Empty...");
+        return new BadRequestError('Body Is Empty...')
       }
 
-      const { password, ...user } = body;
+      const { password, ...user } = body
 
-      const newSalt = await genSalt(10);
-      const hashedPswd = await hash(password, newSalt);
+      const newSalt = await genSalt(10)
+      const hashedPswd = await hash(password, newSalt)
 
       const { $oid: id } = await this.userService.insertUser({
         password: hashedPswd,
         ...user
-      });
+      })
 
       const token = await create(
-        { alg: "HS512", typ: "JWT" },
+        { alg: 'HS512', typ: 'JWT' },
         { iss: id, exp: new Date().getTime() + 60 * 60 * 6 * 1000 },
         env.secret
-      );
-      return { token };
+      )
+      this.mailService.send(`Bienvenido a Denotate ${user.firstName}`)
+      return { token }
     } catch (error) {
-      console.log(error);
+      console.log(error)
 
-      throw new InternalServerError("Failure On 'insertUser'");
+      throw new InternalServerError("Failure On 'insertUser'")
     }
   }
 
-  @Post("/new")
+  @Post('/new')
   async registerNewUser(@Body() body: User, @Req() req: Request) {
     if ((await getUserFromToken(req.headers, true)) == false) {
-      return Content(new ForbiddenError("Not Authorized"), 403);
+      return Content(new ForbiddenError('Not Authorized'), 403)
     }
     try {
       if (isEmpty(body)) {
-        return new BadRequestError("Body Is Empty...");
+        return new BadRequestError('Body Is Empty...')
       }
 
-      const { password, ...user } = body;
+      const { password, ...user } = body
 
-      const newSalt = await genSalt(10);
-      const hashedPswd = await hash(password, newSalt);
+      const newSalt = await genSalt(10)
+      const hashedPswd = await hash(password, newSalt)
 
       const { $oid: id } = await this.userService.insertUser({
         password: hashedPswd,
         ...user
-      });
+      })
 
-      return Content(id, 200);
+      return Content(id, 200)
     } catch (error) {
-      console.log(error);
+      console.log(error)
 
-      throw new InternalServerError("Failure On 'insertUser'");
+      throw new InternalServerError("Failure On 'insertUser'")
     }
   }
 
-  @Post("/login")
+  @Post('/login')
   async loginUser(@Body() body: { login: string; password: string }) {
     try {
       if (isEmpty(body)) {
-        return new BadRequestError("Body Is Empty...");
+        return new BadRequestError('Body Is Empty...')
       }
 
-      const { login, password } = body;
+      const { login, password } = body
 
       const {
         _id: { $oid: id },
         ...document
-      } = await this.userService.findUserByLogin(login);
+      } = await this.userService.findUserByLogin(login)
 
       if (document && document.password) {
-        const comparedPswd = await compare(password, document.password);
+        const comparedPswd = await compare(password, document.password)
         if (comparedPswd) {
           const token = await create(
-            { alg: "HS512", typ: "JWT" },
+            { alg: 'HS512', typ: 'JWT' },
             { iss: id, exp: new Date().getTime() + 60 * 60 * 6 * 1000 },
             env.secret
-          );
-          return { token };
+          )
+          return { token }
         }
-        return new UnauthorizedError("Not authorized");
+        return new UnauthorizedError('Not authorized')
       }
 
-      return new NotFoundError("User Not Found...");
+      return new NotFoundError('User Not Found...')
     } catch (error) {
-      console.log(error);
+      console.log(error)
 
-      throw new InternalServerError("Failure On 'findUserByLogin'");
+      throw new InternalServerError("Failure On 'findUserByLogin'")
     }
   }
 
-  @Get("/logout")
+  @Get('/logout')
   async logoutUser(@Req() req: ServerRequest) {
     try {
-      const iss = await this.verifyAuth(req.headers, true);
+      const iss = await this.verifyAuth(req.headers, true)
 
       if (!iss) {
-        return new ForbiddenError("Nope...");
+        return new ForbiddenError('Nope...')
       }
 
-      const document = await this.userService.findUserById(iss);
+      const document = await this.userService.findUserById(iss)
 
       if (document) {
-        return null;
+        return null
       }
 
-      return new NotFoundError("User Not Found...");
+      return new NotFoundError('User Not Found...')
     } catch (error) {
-      console.log(error);
+      console.log(error)
 
-      throw new InternalServerError("Failure On 'findUserById'");
+      throw new InternalServerError("Failure On 'findUserById'")
     }
   }
 
-  @Get("/all")
+  @Get('/all')
   async getAllUsers(@Req() req: Request) {
     if ((await getUserFromToken(req.headers, true)) == false) {
-      return Content(new ForbiddenError("Not Authorized"), 403);
+      return Content(new ForbiddenError('Not Authorized'), 403)
     }
     try {
-      const documents: UserDocument[] = await this.userService.findAllUsers();
-      console.log(documents.map(({ password }) => ({ password })));
+      const documents: UserDocument[] = await this.userService.findAllUsers()
+      console.log(documents.map(({ password }) => ({ password })))
       return documents.map(user => {
-        return { ...user, password: "" };
-      });
+        return { ...user, password: '' }
+      })
     } catch (error) {
-      console.log(error);
+      console.log(error)
 
-      throw new InternalServerError("Failure On 'findAllUsers'");
+      throw new InternalServerError("Failure On 'findAllUsers'")
     }
   }
 
-  @Get("/isadmin")
+  @Get('/isadmin')
   async isAdmin(@Req() req: ServerRequest) {
     try {
       if (await this.userService.findAdmin()) {
-        return Content(true, 200);
+        return Content(true, 200)
       } else {
-        return Content(false, 403);
+        return Content(false, 403)
       }
     } catch (e) {
-      console.log(e);
+      console.log(e)
     }
   }
 
-  @Get("/:userid")
-  async getUser(@Req() req: ServerRequest, @Param("userid") userid: string) {
+  @Get('/:userid')
+  async getUser(@Req() req: ServerRequest, @Param('userid') userid: string) {
     if ((await getUserFromToken(req.headers, false)) == false) {
-      return Content(new ForbiddenError("Not Authorized"), 403);
+      return Content(new ForbiddenError('Not Authorized'), 403)
     }
 
     try {
-      const iss = await this.verifyAuth(req.headers);
+      const iss = await this.verifyAuth(req.headers)
       if (!iss) {
-        return new ForbiddenError("Nope...");
+        return new ForbiddenError('Nope...')
       }
 
       const {
         password,
         _id: { $oid: id },
         ...document
-      } = await this.userService.findUserById(userid ? userid : iss);
+      } = await this.userService.findUserById(userid ? userid : iss)
 
       if (document) {
-        return { _id: { $oid: id }, ...document };
+        return { _id: { $oid: id }, ...document }
       }
 
-      return new NotFoundError("User Not Found...");
+      return new NotFoundError('User Not Found...')
     } catch (error) {
-      console.log(error);
+      console.log(error)
 
-      throw new InternalServerError("Failure On 'findUserById'");
+      throw new InternalServerError("Failure On 'findUserById'")
     }
   }
 
-  @Put("/pswd")
-  async pswdUser(
-    @Req() req: ServerRequest,
-    @Body() body: { oldPswd: string; newPswd: string }
-  ) {
-    console.log(body);
+  @Put('/pswd')
+  async pswdUser(@Req() req: ServerRequest, @Body() body: { oldPswd: string; newPswd: string }) {
+    console.log(body)
     if ((await getUserFromToken(req.headers, false)) == false) {
-      return Content(new ForbiddenError("Not Authorized"), 403);
+      return Content(new ForbiddenError('Not Authorized'), 403)
     }
     try {
-      const iss = await this.verifyAuth(req.headers);
+      const iss = await this.verifyAuth(req.headers)
 
       if (!iss) {
-        return new ForbiddenError("Nope...");
+        return new ForbiddenError('Nope...')
       }
 
       if (isEmpty(body)) {
-        return new BadRequestError("Body Is Empty...");
+        return new BadRequestError('Body Is Empty...')
       }
-      console.log(body);
-      const { oldPswd, newPswd } = body;
+      console.log(body)
+      const { oldPswd, newPswd } = body
 
-      console.log(oldPswd, newPswd);
+      console.log(oldPswd, newPswd)
 
-      const document = await this.userService.findUserById(iss);
+      const document = await this.userService.findUserById(iss)
 
       if (document && document.password) {
-        const comparedPswd = await compare(oldPswd, document.password);
+        const comparedPswd = await compare(oldPswd, document.password)
 
         if (comparedPswd) {
-          const newSalt = await genSalt(10);
-          const hashedPswd = await hash(newPswd, newSalt);
+          const newSalt = await genSalt(10)
+          const hashedPswd = await hash(newPswd, newSalt)
 
           const count = await this.userService.updateUserById(iss, {
             password: hashedPswd
-          });
+          })
 
           if (count) {
-            return Content({ message: "Okay Password Changed" }, 200);
+            return Content({ message: 'Okay Password Changed' }, 200)
           }
 
-          return Content({ message: "Nothing Happened" }, 204);
+          return Content({ message: 'Nothing Happened' }, 204)
         }
 
-        return new UnauthorizedError("Nope...");
+        return new UnauthorizedError('Nope...')
       }
 
-      return new NotFoundError("User Not Found...");
+      return new NotFoundError('User Not Found...')
     } catch (error) {
-      console.log(error);
+      console.log(error)
 
-      throw new InternalServerError("Failure On 'updateUserById'");
+      throw new InternalServerError("Failure On 'updateUserById'")
     }
   }
 
-  @Put("/:userid")
+  @Put('/:userid')
   async setUser(
     @Req() req: ServerRequest,
     @Body() body: Partial<User>,
-    @Param("userid") userid: string
+    @Param('userid') userid: string
   ) {
     if ((await getUserFromToken(req.headers, true)) == false) {
-      return Content(new ForbiddenError("Not Authorized"), 403);
+      return Content(new ForbiddenError('Not Authorized'), 403)
     }
     try {
-      const iss = await this.verifyAuth(req.headers);
+      const iss = await this.verifyAuth(req.headers)
 
       if (!iss) {
-        return new ForbiddenError("Nope...");
+        return new ForbiddenError('Nope...')
       }
-      console.log({ body });
+      console.log({ body })
       if (isEmpty(body)) {
-        return new BadRequestError("Body Is Empty...");
+        return new BadRequestError('Body Is Empty...')
       }
 
-      const { password, ...user } = body;
+      const { password, ...user } = body
 
-      const document: UserDocument = await this.userService.findUserById(
-        userid
-      );
+      const document: UserDocument = await this.userService.findUserById(userid)
 
       if (document) {
-        const count = await this.userService.updateUserById(iss, user);
+        const count = await this.userService.updateUserById(iss, user)
 
         if (count) {
-          return Content(await this.userService.findUserById(userid), 200);
+          return Content(await this.userService.findUserById(userid), 200)
         }
 
-        return Content({ message: "Nothing Happened" }, 204);
+        return Content({ message: 'Nothing Happened' }, 204)
       }
 
-      return new NotFoundError("User Not Found...");
+      return new NotFoundError('User Not Found...')
     } catch (error) {
-      console.log(error);
+      console.log(error)
 
-      throw new InternalServerError("Failure On 'updateUserById'");
+      throw new InternalServerError("Failure On 'updateUserById'")
     }
   }
 
-  @Delete("/")
+  @Delete('/')
   async clearUser(@Req() req: ServerRequest) {
     if ((await getUserFromToken(req.headers, true)) == false) {
-      return Content(new ForbiddenError("Not Authorized"), 403);
+      return Content(new ForbiddenError('Not Authorized'), 403)
     }
     try {
-      const iss = await this.verifyAuth(req.headers);
+      const iss = await this.verifyAuth(req.headers)
 
       if (!iss) {
-        return new ForbiddenError("Nope...");
+        return new ForbiddenError('Nope...')
       }
 
-      const document: UserDocument = await this.userService.findUserById(iss);
+      const document: UserDocument = await this.userService.findUserById(iss)
 
       if (document) {
-        const count = await this.userService.deleteUserById(iss);
+        const count = await this.userService.deleteUserById(iss)
 
         if (count) {
-          return Content({ message: "Okay" }, 204);
+          return Content({ message: 'Okay' }, 204)
         }
 
-        return Content({ message: "Nothing Happened" }, 204);
+        return Content({ message: 'Nothing Happened' }, 204)
       }
 
-      return new NotFoundError("User Not Found...");
+      return new NotFoundError('User Not Found...')
     } catch (error) {
-      console.log(error);
+      console.log(error)
 
-      throw new InternalServerError("Failure On 'deleteUserById'");
+      throw new InternalServerError("Failure On 'deleteUserById'")
     }
   }
 
-  @Get("/thisisadmin")
+  @Get('/thisisadmin')
   async thisIsAdmin(@Req() req: ServerRequest) {
     if ((await getUserFromToken(req.headers, true)) == false) {
-      return Content(false, 403);
+      return Content(false, 403)
     }
-    return Content(true, 200);
+    return Content(true, 200)
   }
 
-  @Get("/thisislogged")
+  @Get('/thisislogged')
   async thisIsLogged(@Req() req: ServerRequest) {
     if ((await getUserFromToken(req.headers, false)) == false) {
-      return Content(false, 403);
+      return Content(false, 403)
     }
-    return Content(true, 200);
+    return Content(true, 200)
   }
 }

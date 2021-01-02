@@ -9,4 +9,6 @@ export interface Env {
   dbUri: string
   dbPort: StringOrNumber
   secret: string
+  user: string
+  password: string
 }

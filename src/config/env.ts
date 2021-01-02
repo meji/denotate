@@ -1,67 +1,77 @@
-import "https://deno.land/x/dotenv/load.ts";
-import { Env, StringOrNumber } from "../models/env.ts";
+import 'https://deno.land/x/dotenv/load.ts'
+import { Env, StringOrNumber } from '../models/env.ts'
 
 class EnvBuilder {
-  private env: Env;
+  private env: Env
 
   constructor() {
-    this.env = {} as Env;
+    this.env = {} as Env
   }
 
   withCurrentWorkingDir(defaultDir: string) {
-    this.env.currentWorkingDir = Deno.cwd() || defaultDir;
-    return this;
+    this.env.currentWorkingDir = Deno.cwd() || defaultDir
+    return this
   }
 
   withDenoEnv(defaultEnv: string) {
-    this.env.denoEnv = Deno.env.get("DENO_ENV") || defaultEnv;
-    return this;
+    this.env.denoEnv = Deno.env.get('DENO_ENV') || defaultEnv
+    return this
   }
 
   withDenoHost(defaultHost: string) {
-    this.env.denoHost = Deno.env.get("DENO_HOST") || defaultHost;
-    return this;
+    this.env.denoHost = Deno.env.get('DENO_HOST') || defaultHost
+    return this
   }
 
   withDenoPort(defaultPort: StringOrNumber) {
-    this.env.denoPort = Deno.env.get("DENO_PORT") || defaultPort;
-    return this;
+    this.env.denoPort = Deno.env.get('DENO_PORT') || defaultPort
+    return this
   }
 
   withDbName(defaultName: string) {
-    this.env.dbName = Deno.env.get("DB_NAME") || defaultName;
-    return this;
+    this.env.dbName = Deno.env.get('DB_NAME') || defaultName
+    return this
   }
 
   withDbUri(defaultUri: string) {
-    this.env.dbUri = Deno.env.get("DB_URI") || defaultUri;
-    return this;
+    this.env.dbUri = Deno.env.get('DB_URI') || defaultUri
+    return this
   }
 
   withDbPort(defaultPort: StringOrNumber) {
-    this.env.dbPort = Deno.env.get("DB_PORT") || defaultPort;
-    return this;
+    this.env.dbPort = Deno.env.get('DB_PORT') || defaultPort
+    return this
   }
 
   withSecret(defaultSecret: string) {
-    this.env.secret = Deno.env.get("SECRET") || defaultSecret;
-    return this;
+    this.env.secret = Deno.env.get('SECRET') || defaultSecret
+    return this
+  }
+  withMailUser(defaultSecret: string) {
+    this.env.user = Deno.env.get('MAIL_USER') || defaultSecret
+    return this
+  }
+  withMailPassword(defaultSecret: string) {
+    this.env.password = Deno.env.get('MAIL_PASSWORD') || defaultSecret
+    return this
   }
 
   builder(): Env {
-    return this.env;
+    return this.env
   }
 }
 
 const env = new EnvBuilder()
-  .withCurrentWorkingDir("./")
-  .withDenoEnv("dev")
-  .withDenoHost("localhost")
+  .withCurrentWorkingDir('./')
+  .withDenoEnv('dev')
+  .withDenoHost('localhost')
   .withDenoPort(8080)
-  .withDbName("deno_land")
-  .withDbUri("localhost")
+  .withDbName('deno_land')
+  .withDbUri('localhost')
   .withDbPort(27017)
-  .withSecret("Hello")
-  .builder();
+  .withSecret('Hello')
+  .withMailUser('')
+  .withMailPassword('')
+  .builder()
 
-export default env;
+export default env
