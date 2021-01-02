@@ -27,7 +27,6 @@ import { TokenService } from '../../services/token.service.ts'
 import env from '../../config/env.ts'
 import { isEmpty, convertBearerToToken } from '../../utils/index.ts'
 import { getUserFromToken } from '../../utils/verifyToken.ts'
-import { MailService } from '../../services/mail.service.ts'
 
 type StringOrNull = string | null
 
@@ -36,7 +35,6 @@ export class UserController {
   constructor(
     private userService: UserService,
     private tokenService: TokenService,
-    private mailService: MailService
   ) {}
 
   /**
@@ -104,12 +102,6 @@ export class UserController {
         { iss: id, exp: new Date().getTime() + 60 * 60 * 6 * 1000 },
         env.secret
       )
-      await this.mailService.connect().then(async () => {
-        console.log('dentro')
-        await this.mailService
-          .send(`Bienvenido a Denotate ${user.firstName}`, user.email)
-          .then(async () => await this.mailService.close())
-      })
       return { token }
     } catch (error) {
       console.log(error)
