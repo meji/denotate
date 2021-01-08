@@ -1,60 +1,58 @@
-import { Injectable } from "../../deps.ts";
-import { User, UserDocument } from "../models/user.ts";
-import db from "../config/db.ts";
+import { Injectable } from '../../deps.ts'
+import { User, UserDocument } from '../models/user.ts'
+import db from '../config/db.ts'
 
 interface ObjectID {
-  $oid: string;
+  $oid: string
 }
 
 @Injectable()
 export class UserService {
-  private collection: any;
+  private collection: any
 
   constructor() {
-    const database = db.getDatabase;
-    this.collection = database.collection("users");
+    const database = db.getDatabase
+    this.collection = database.collection('users')
   }
 
   async findAllUsers(): Promise<UserDocument[]> {
-    return await this.collection.find({});
+    return await this.collection.find({})
   }
 
   async findAdmin(): Promise<Boolean> {
-    const admin = await this.collection.find({ admin: true });
-    return admin.length != 0;
+    const admin = await this.collection.find({ admin: true })
+    return admin.length != 0
   }
 
   async findUserById(id: string): Promise<UserDocument> {
-    return await this.collection.findOne({ _id: { $oid: id } });
+    return await this.collection.findOne({ _id: { $oid: id } })
   }
 
   async findUserByLogin(login: string): Promise<UserDocument> {
-    return await this.collection.findOne({ login });
+    return await this.collection.findOne({ login })
+  }
+
+  async findUserByEmail(email: string): Promise<UserDocument> {
+    return await this.collection.findOne({ email })
   }
 
   async insertUser(user: User): Promise<ObjectID> {
-    return await this.collection.insertOne(user);
+    return await this.collection.insertOne(user)
   }
 
   async updateUserById(id: string, user: Partial<User>): Promise<number> {
-    const { modifiedCount } = await this.collection.updateOne(
-      { _id: { $oid: id } },
-      { $set: user }
-    );
+    const { modifiedCount } = await this.collection.updateOne({ _id: { $oid: id } }, { $set: user })
 
-    return modifiedCount;
+    return modifiedCount
   }
 
   async updateUserByLogin(login: string, user: Partial<User>): Promise<number> {
-    const { modifiedCount } = await this.collection.updateOne(
-      { login },
-      { $set: user }
-    );
+    const { modifiedCount } = await this.collection.updateOne({ login }, { $set: user })
 
-    return modifiedCount;
+    return modifiedCount
   }
 
   async deleteUserById(id: string): Promise<number> {
-    return await this.collection.deleteOne({ _id: { $oid: id } });
+    return await this.collection.deleteOne({ _id: { $oid: id } })
   }
 }

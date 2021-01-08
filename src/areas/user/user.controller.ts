@@ -116,6 +116,12 @@ export class UserController {
       if (isEmpty(body)) {
         return new BadRequestError('Body Is Empty...')
       }
+      if (
+        (await this.userService.findUserByLogin(body.login)) ||
+        (await this.userService.findUserByEmail(body.login))
+      ) {
+        return Content({ message: 'User does exist' }, 409)
+      }
 
       const { password, ...user } = body
 
