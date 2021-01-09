@@ -128,3 +128,5 @@ gen
 
 scripts.config.ts
 .deno_*
+/public/
+/public/uploads/
